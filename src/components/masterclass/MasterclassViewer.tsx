@@ -1,14 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useState, useEffect } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { type MasterclassData } from "@/lib/masterclass";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Textarea } from "@/components/ui/Textarea";
 
+const QUIZ_PAR_MC: Record<string, string> = {
+  "methode-i+": "/quiz/methode-i+",
+  "energie": "/quiz/energie",
+};
+
 export function MasterclassViewer({ mc }: { mc: MasterclassData }) {
   const t = useTranslations("masterclass");
+  const locale = useLocale();
   const [currentPart, setCurrentPart] = useState(0);
   const [currentSection, setCurrentSection] = useState(0);
   const [notes, setNotes] = useState<Record<string, string>>({});
@@ -17,6 +23,15 @@ export function MasterclassViewer({ mc }: { mc: MasterclassData }) {
   const section = part?.sections[currentSection];
   const totalSections = mc.parties.reduce((acc, p) => acc + p.sections.length, 0);
   const globalIndex = mc.parties.slice(0, currentPart).reduce((acc, p) => acc + p.sections.length, 0) + currentSection;
+
+  // Sauvegarder la progression à chaque section
+  useEffect(() => {
+    fetch("/api/mc-progress", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mc_id: mc.slug, section_actuelle: globalIndex }),
+    }).catch(() => {});
+  }, [globalIndex, mc.slug]);
 
   const goNext = () => {
     if (currentSection < part.sections.length - 1) {
@@ -34,6 +49,15 @@ export function MasterclassViewer({ mc }: { mc: MasterclassData }) {
       setCurrentPart(currentPart - 1);
       const prevPart = mc.parties[currentPart - 1];
       setCurrentSection(prevPart.sections.length - 1);
+    }
+  };
+
+  const handleFinish = () => {
+    const quizPath = QUIZ_PAR_MC[mc.slug];
+    if (quizPath) {
+      window.location.href = `/${locale}${quizPath}`;
+    } else {
+      window.location.href = `/${locale}/dashboard`;
     }
   };
 
@@ -143,7 +167,7 @@ export function MasterclassViewer({ mc }: { mc: MasterclassData }) {
           <Button variant="ghost" onClick={goPrev}>{t("previous")}</Button>
         )}
         {isLast ? (
-          <Button onClick={() => (window.location.href = "/dashboard")}>{t("finish")}</Button>
+          <Button onClick={handleFinish}>{t("finish")}</Button>
         ) : (
           <Button onClick={goNext}>{t("nextSection")}</Button>
         )}
