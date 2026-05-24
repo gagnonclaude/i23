@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
+import { useLocalDraft } from "@/hooks/useLocalDraft";
 
 type Dimension = "energie" | "anxiete" | "temps" | "emotions" | "motivation" | "communication" | "confiance" | "relations";
 
@@ -34,7 +35,7 @@ export function BilanDepartForm() {
   const t = useTranslations("bilan");
   const router = useRouter();
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string | number>>({});
+  const [answers, setAnswers, clearAnswers] = useLocalDraft<Record<string, string | number>>("bilan-depart", {});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -92,6 +93,7 @@ export function BilanDepartForm() {
       return;
     }
 
+    clearAnswers();
     router.push("/dashboard");
   };
 

@@ -7,6 +7,7 @@ import { methodeConfig } from "@/lib/config";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Textarea } from "@/components/ui/Textarea";
+import { useLocalDraft } from "@/hooks/useLocalDraft";
 
 const STEPS = [
   "declencheurs",
@@ -20,25 +21,38 @@ const STEPS = [
   "preparation",
 ] as const;
 
+const etapesInitial = Object.fromEntries(methodeConfig.etapes.map((e) => [e.numero, ""]));
+
 export function SchemaForm() {
   const t = useTranslations("schema");
   const router = useRouter();
-  const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [thematique, setThematique] = useState("");
-  const [declencheur, setDeclencheur] = useState("");
-  const [histoire, setHistoire] = useState("");
-  const [niveau, setNiveau] = useState<"i" | "2" | "3">("i");
-  const [etapes, setEtapes] = useState<Record<number, string>>(
-    Object.fromEntries(methodeConfig.etapes.map((e) => [e.numero, ""]))
-  );
-  const [menacesSelection, setMenacesSelection] = useState<number[]>([]);
-  const [opportunitesSelection, setOpportunitesSelection] = useState<number[]>([]);
-  const [nouveauSchema, setNouveauSchema] = useState<Record<number, string>>(
-    Object.fromEntries(methodeConfig.etapes.map((e) => [e.numero, ""]))
-  );
-  const [nouvelleHistoire, setNouvelleHistoire] = useState("");
+
+  // Auto-save de toute la progression dans localStorage
+  const [step, setStep, clearStep] = useLocalDraft("schema-step", 0);
+  const [thematique, setThematique, clearThematique] = useLocalDraft("schema-thematique", "");
+  const [declencheur, setDeclencheur, clearDeclencheur] = useLocalDraft("schema-declencheur", "");
+  const [histoire, setHistoire, clearHistoire] = useLocalDraft("schema-histoire", "");
+  const [niveau, setNiveau, clearNiveau] = useLocalDraft<"i" | "2" | "3">("schema-niveau", "i");
+  const [etapes, setEtapes, clearEtapes] = useLocalDraft<Record<number, string>>("schema-etapes", etapesInitial);
+  const [menacesSelection, setMenacesSelection, clearMenaces] = useLocalDraft<number[]>("schema-menaces", []);
+  const [opportunitesSelection, setOpportunitesSelection, clearOpportunites] = useLocalDraft<number[]>("schema-opportunites", []);
+  const [nouveauSchema, setNouveauSchema, clearNouveauSchema] = useLocalDraft<Record<number, string>>("schema-nouveau", etapesInitial);
+  const [nouvelleHistoire, setNouvelleHistoire, clearNouvelleHistoire] = useLocalDraft("schema-nouvelle-histoire", "");
+
+  const clearAll = () => {
+    clearStep();
+    clearThematique();
+    clearDeclencheur();
+    clearHistoire();
+    clearNiveau();
+    clearEtapes();
+    clearMenaces();
+    clearOpportunites();
+    clearNouveauSchema();
+    clearNouvelleHistoire();
+  };
 
   const toggleMenace = (idx: number) => {
     setMenacesSelection((prev) =>
@@ -57,7 +71,8 @@ export function SchemaForm() {
     if (step === 1) return declencheur.length >= 3;
     if (step === 2) return histoire.length >= 20;
     if (step === 3) return Object.values(etapes).some((v) => v.length >= 3);
-    if (step === 4) return menacesSelection.length > 0;    return true;
+    if (step === 4) return menacesSelection.length > 0;
+    return true;
   };
 
   const handleSubmit = async () => {
@@ -85,6 +100,7 @@ export function SchemaForm() {
       return;
     }
 
+    clearAll();
     router.push("/dashboard");
   };
 
@@ -119,22 +135,31 @@ export function SchemaForm() {
     return [];
   };
 
+  const hasDraft = thematique.length > 0 || declencheur.length > 0 || histoire.length > 0;
+
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="flex gap-1 mb-8">
-        {STEPS.map((_, i) => (
-          <div
-            key={i}
-            className={`h-1 flex-1 rounded-full transition-colors ${
-              i <= step ? "bg-i23-turquoise" : "bg-i23-gris-pale"
-            }`}
-          />
-        ))}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex gap-1 flex-1">
+          {STEPS.map((_, i) => (
+            <div
+              key={i}
+              className={`h-1 flex-1 rounded-full transition-colors ${
+                i <= step ? "bg-i23-turquoise" : "bg-i23-gris-pale"
+              }`}
+            />
+          ))}
+        </div>
       </div>
 
-      <p className="text-xs text-i23-gris-fonce/50 mb-6">
-        {t("step")} {step + 1}/9
-      </p>
+      <div className="flex items-center justify-between mb-6">
+        <p className="text-xs text-i23-gris-fonce/50">
+          {t("step")} {step + 1}/9
+        </p>
+        {hasDraft && (
+          <p className="text-xs text-i23-turquoise/70">{t("draftSaved")}</p>
+        )}
+      </div>
 
       {step === 0 && (
         <div className="space-y-6">
@@ -335,6 +360,10 @@ export function SchemaForm() {
             rows={6}
           />
         </div>
+      )}
+
+      {error && (
+        <p className="text-sm text-red-500 mt-4">{error}</p>
       )}
 
       <div className="flex justify-between mt-8">
