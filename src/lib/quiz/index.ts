@@ -25,14 +25,104 @@ export function calculerResultat(reponses: Record<string, string>, questions: Qu
 }
 
 export const quizMethode: QuizQuestion[] = [
-  { id: "m1", question: "Combien d'étapes composent la Méthode i+ ?", choix: [{ id: "a", texte: "6" }, { id: "b", texte: "8" }, { id: "c", texte: "10" }], bonneReponse: "b" },
-  { id: "m2", question: "Quelle est la première étape de la Méthode i+ ?", choix: [{ id: "a", texte: "Ressentir" }, { id: "b", texte: "Prédire" }, { id: "c", texte: "Observer" }], bonneReponse: "c" },
-  { id: "m3", question: "Qu'est-ce qu'un déclencheur dans la Méthode i+ ?", choix: [{ id: "a", texte: "Une opportunité" }, { id: "b", texte: "Ce qui active une expérience" }, { id: "c", texte: "Un outil i+" }], bonneReponse: "b" },
-  { id: "m4", question: "Qu'est-ce qu'une menace dans un schéma d'expérience ?", choix: [{ id: "a", texte: "Une composante qui bloque, surcharge ou limite" }, { id: "b", texte: "Un danger physique" }, { id: "c", texte: "Une étape à éviter" }], bonneReponse: "a" },
-  { id: "m5", question: "Qu'est-ce qu'une opportunité dans un schéma d'expérience ?", choix: [{ id: "a", texte: "Une chance de gagner de l'argent" }, { id: "b", texte: "Une composante qui aide, soutient ou ouvre une possibilité" }, { id: "c", texte: "Un événement externe favorable" }], bonneReponse: "b" },
-  { id: "m6", question: "Combien de niveaux existe-t-il dans la Méthode i+ ?", choix: [{ id: "a", texte: "2" }, { id: "b", texte: "3" }, { id: "c", texte: "4" }], bonneReponse: "b" },
-  { id: "m7", question: "Que signifie le niveau i ?", choix: [{ id: "a", texte: "Individuel" }, { id: "b", texte: "Interne" }, { id: "c", texte: "Intelligent" }], bonneReponse: "a" },
-  { id: "m8", question: "Qu'est-ce qu'une trajectoire dans la Méthode i+ ?", choix: [{ id: "a", texte: "Un chemin physique" }, { id: "b", texte: "L'accumulation des expériences dans le temps" }, { id: "c", texte: "Un plan financier" }], bonneReponse: "b" },
-  { id: "m9", question: "À quoi servent les Outils i+ ?", choix: [{ id: "a", texte: "À mesurer le QI" }, { id: "b", texte: "À transformer une menace en opportunité" }, { id: "c", texte: "À créer des schémas" }], bonneReponse: "b" },
-  { id: "m10", question: "Quelle étape suit Choisir dans la Méthode i+ ?", choix: [{ id: "a", texte: "Agir" }, { id: "b", texte: "Planifier" }, { id: "c", texte: "Évaluer" }], bonneReponse: "b" },
+  {
+    id: "m1",
+    question: "Tu reçois un courriel urgent au travail. Dans la Méthode i+, qu'est-ce qui a activé cette expérience ?",
+    choix: [
+      { id: "a", texte: "Le stress que tu ressens" },
+      { id: "b", texte: "Le courriel — c'est le déclencheur" },
+      { id: "c", texte: "Ta journée chargée" },
+    ],
+    bonneReponse: "b",
+  },
+  {
+    id: "m2",
+    question: "Tu vois une tâche importante à faire et tu te concentres uniquement sur son ampleur en ignorant que tu as déjà réussi des tâches similaires. Tu es à quelle étape ?",
+    choix: [
+      { id: "a", texte: "Prédire — tu anticipes le pire" },
+      { id: "b", texte: "Observer — tu perçois de façon sélective et négative" },
+      { id: "c", texte: "Ressentir — tu vis l'anxiété" },
+    ],
+    bonneReponse: "b",
+  },
+  {
+    id: "m3",
+    question: "Avant même de commencer, tu penses : \"Je vais encore échouer.\" Tu es à quelle étape, et c'est quoi ?",
+    choix: [
+      { id: "a", texte: "Observer — une menace dans ta perception" },
+      { id: "b", texte: "Prédire — une menace dans tes anticipations" },
+      { id: "c", texte: "Choisir — une décision d'évitement" },
+    ],
+    bonneReponse: "b",
+  },
+  {
+    id: "m4",
+    question: "Tu ressens de la culpabilité et de la honte après avoir reporté une tâche. Tu es à quelle étape ?",
+    choix: [
+      { id: "a", texte: "Évaluer — tu observes tes résultats" },
+      { id: "b", texte: "Apprendre — tu intègres un apprentissage" },
+      { id: "c", texte: "Ressentir — tu vis la charge émotive de l'expérience" },
+    ],
+    bonneReponse: "c",
+  },
+  {
+    id: "m5",
+    question: "Tu choisis d'éviter une conversation difficile pour ne pas blesser l'autre. Avec quoi est aligné ce choix ?",
+    choix: [
+      { id: "a", texte: "Tes valeurs de respect" },
+      { id: "b", texte: "Ta peur du conflit — c'est une menace à l'étape Choisir" },
+      { id: "c", texte: "Les besoins de ton collègue" },
+    ],
+    bonneReponse: "b",
+  },
+  {
+    id: "m6",
+    question: "Tu planifies ta semaine en remplissant chaque heure sans prévoir de temps de récupération. C'est quoi comme composante à l'étape Planifier ?",
+    choix: [
+      { id: "a", texte: "Une opportunité — tu maximises ton temps" },
+      { id: "b", texte: "Une menace — tu planifies sans tenir compte de ton énergie réelle" },
+      { id: "c", texte: "Un déclencheur — ta semaine active le schéma" },
+    ],
+    bonneReponse: "b",
+  },
+  {
+    id: "m7",
+    question: "Tu attends d'être motivé avant d'agir, mais la motivation ne vient pas. Que dit la Méthode i+ sur l'étape Agir ?",
+    choix: [
+      { id: "a", texte: "Il faut mieux planifier pour que la motivation revienne" },
+      { id: "b", texte: "L'action précède souvent la motivation — agir d'abord, même petit" },
+      { id: "c", texte: "Il faut transformer l'émotion à l'étape Ressentir d'abord" },
+    ],
+    bonneReponse: "b",
+  },
+  {
+    id: "m8",
+    question: "Tu as avancé sur une tâche, mais tu te dis : \"C'est pas assez, j'aurais dû faire plus.\" Tu es à quelle étape et quel est le problème ?",
+    choix: [
+      { id: "a", texte: "Apprendre — tu intègres un mauvais apprentissage" },
+      { id: "b", texte: "Évaluer — tu évalues de façon biaisée et négative malgré un progrès réel" },
+      { id: "c", texte: "Observer — tu perçois mal tes résultats" },
+    ],
+    bonneReponse: "b",
+  },
+  {
+    id: "m9",
+    question: "Après chaque conflit, tu apprends : \"Les relations sont toujours difficiles pour moi.\" Quel est le risque selon la Méthode i+ ?",
+    choix: [
+      { id: "a", texte: "Tu vas éviter les relations" },
+      { id: "b", texte: "Cet apprentissage va renforcer ta trajectoire dans cette direction et se répéter" },
+      { id: "c", texte: "Tu vas changer de sphère pour travailler autre chose" },
+    ],
+    bonneReponse: "b",
+  },
+  {
+    id: "m10",
+    question: "Tu veux transformer une expérience qui se répète. Par où commences-tu selon la Méthode i+ ?",
+    choix: [
+      { id: "a", texte: "Tu changes ton environnement en premier" },
+      { id: "b", texte: "Tu identifies le déclencheur, tu décortiques le schéma étape par étape, tu repères les menaces à transformer en opportunités" },
+      { id: "c", texte: "Tu travailles ta motivation et ta discipline" },
+    ],
+    bonneReponse: "b",
+  },
 ];
