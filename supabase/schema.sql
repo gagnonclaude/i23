@@ -226,8 +226,53 @@ alter table public.schemas_experience
   add column if not exists statut text default 'brouillon',
   add column if not exists badge_earned boolean default false;
 
--- Index pour les nouvelles tables
-create index if not exists idx_parcours_progression_user_id on public.parcours_progression(user_id);
+-- Table consentement membre (Loi 25)
+create table if not exists public.membre_consentement (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users(id) on delete cascade not null unique,
+  -- Mode de sauvegarde : 'enregistre' | 'session'
+  mode_sauvegarde text not null default 'enregistre',
+  -- Partage coach : 'aucun' | 'progression' | 'progression_schemas' | 'tout'
+  partage_coach text not null default 'aucun',
+  -- Consentement explicite donné à l'inscription
+  consentement_donne_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+alter table public.membre_consentement enable row level security;
+
+create policy "Un membre voit son consentement"
+  on public.membre_consentement for select
+  using (auth.uid() = user_id);
+
+create policy "Un membre insère son consentement"
+  on public.membre_consentement for insert
+  with check (auth.uid() = user_id);
+
+create policy "Un membre modifie son consentement"
+  on public.membre_consentement for update
+  using (auth.uid() = user_id);
+
+create index if not exists idx_membre_consentement_user_id on public.membre_consentement(user_id);
 create index if not exists idx_quiz_results_user_id on public.quiz_results(user_id);
 create index if not exists idx_badges_earned_user_id on public.badges_earned(user_id);
 create index if not exists idx_mc_progression_user_id on public.mc_progression(user_id);
+
+-- Index pour les nouvelles tables
+create index if not exists idx_parcours_progression_user_id on public.parcours_progression(user_id);
+create table if not exists public.audit_logs (
+  id uuid default gen_random_uuid() primary key,
+  action text not null,
+  user_id uuid references auth.users(id) on delete set null,
+  ip text,
+  metadata jsonb default '{}',
+  created_at timestamptz default now()
+);
+
+-- RLS : lecture réservée aux admins seulement (aucun membre ne voit les logs des autres)
+alter table public.audit_logs enable row level security;
+
+-- Index pour les recherches fréquentes
+create index if not exists idx_audit_logs_user_id on public.audit_logs(user_id);
+create index if not exists idx_audit_logs_action on public.audit_logs(action);
+create index if not exists idx_audit_logs_created_at on public.audit_logs(created_at desc);

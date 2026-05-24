@@ -20,6 +20,22 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
+      // Vérifier si le membre a déjà configuré son consentement
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: consentement } = await supabase
+          .from("membre_consentement")
+          .select("id")
+          .eq("user_id", user.id)
+          .single();
+
+        // Nouveau membre = redirect vers consentement
+        if (!consentement) {
+          const locale = next.startsWith("/en") ? "en" : "fr";
+          return NextResponse.redirect(`${origin}/${locale}/auth/consentement`);
+        }
+      }
+
       const safeNext = isSafeRedirect(next) ? next : "/fr/dashboard";
       return NextResponse.redirect(`${origin}${safeNext}`);
     }

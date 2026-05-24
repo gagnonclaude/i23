@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { niveauxMaslow, bilanQuestions, thematiquesParNiveau, type NiveauMaslow } from "@/lib/initialisation";
 import { advanceTo } from "@/lib/parcours";
+import { useLocalDraft } from "@/hooks/useLocalDraft";
 
 const TOTAL_STEPS = 4;
 
@@ -17,10 +18,10 @@ export function InitialisationForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [profil, setProfil] = useState({ prenom: "", motivation: "" });
-  const [bilanReponses, setBilanReponses] = useState<Record<string, number>>({});
-  const [priorites, setPriorites] = useState<NiveauMaslow[]>([]);
-  const [besoins, setBesoins] = useState<string[]>([]);
+  const [profil, setProfil, clearProfil] = useLocalDraft("initialisation-profil", { prenom: "", motivation: "" });
+  const [bilanReponses, setBilanReponses, clearBilan] = useLocalDraft<Record<string, number>>("initialisation-bilan", {});
+  const [priorites, setPriorites, clearPriorites] = useLocalDraft<NiveauMaslow[]>("initialisation-priorites", []);
+  const [besoins, setBesoins, clearBesoins] = useLocalDraft<string[]>("initialisation-besoins", []);
 
   const canContinue = () => {
     if (step === 0) return profil.prenom.trim().length >= 2;
@@ -84,6 +85,10 @@ export function InitialisationForm() {
       return;
     }
 
+    clearProfil();
+    clearBilan();
+    clearPriorites();
+    clearBesoins();
     router.push("/dashboard");
   };
 

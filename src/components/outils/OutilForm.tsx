@@ -7,6 +7,7 @@ import { methodeConfig } from "@/lib/config";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Textarea } from "@/components/ui/Textarea";
+import { useLocalDraft } from "@/hooks/useLocalDraft";
 
 interface OutilFormProps {
   etapeNumero: number;
@@ -15,13 +16,23 @@ interface OutilFormProps {
 export function OutilForm({ etapeNumero }: OutilFormProps) {
   const t = useTranslations("outils");
   const router = useRouter();
-  const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [menace, setMenace] = useState("");
-  const [menaceDetails, setMenaceDetails] = useState("");
-  const [opportunite, setOpportunite] = useState("");
-  const [planAction, setPlanAction] = useState("");
+
+  const draftKey = `outil-${etapeNumero}`;
+  const [step, setStep, clearStep] = useLocalDraft(`${draftKey}-step`, 0);
+  const [menace, setMenace, clearMenace] = useLocalDraft(`${draftKey}-menace`, "");
+  const [menaceDetails, setMenaceDetails, clearMenaceDetails] = useLocalDraft(`${draftKey}-menace-details`, "");
+  const [opportunite, setOpportunite, clearOpportunite] = useLocalDraft(`${draftKey}-opportunite`, "");
+  const [planAction, setPlanAction, clearPlanAction] = useLocalDraft(`${draftKey}-plan`, "");
+
+  const clearAll = () => {
+    clearStep();
+    clearMenace();
+    clearMenaceDetails();
+    clearOpportunite();
+    clearPlanAction();
+  };
 
   const etape = methodeConfig.etapes.find((e) => e.numero === etapeNumero);
   if (!etape) return null;
@@ -89,6 +100,7 @@ export function OutilForm({ etapeNumero }: OutilFormProps) {
       return;
     }
 
+    clearAll();
     router.push("/outils");
     router.refresh();
   };
@@ -222,6 +234,10 @@ export function OutilForm({ etapeNumero }: OutilFormProps) {
           </div>
         )}
 
+        {error && (
+          <p className="text-sm text-red-500 mt-4">{error}</p>
+        )}
+
         <div className="flex justify-between mt-8">
           {step > 0 ? (
             <Button variant="ghost" onClick={() => setStep(step - 1)}>{t("previous")}</Button>
@@ -238,3 +254,4 @@ export function OutilForm({ etapeNumero }: OutilFormProps) {
     </div>
   );
 }
+

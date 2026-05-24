@@ -291,6 +291,8 @@
     "previous": "Précédent",
     "next": "Suivant",
     "submit": "Sauvegarder mon schéma",
+    "imprimer": "Imprimer mes résultats",
+    "draftSaved": "Brouillon sauvegardé",
     "thematiques": {
       "travail": "Travail",
       "relations": "Relations",
@@ -566,5 +568,31 @@
       "besoinsDesc": "Choisis les thématiques qui résonnent le plus avec ce que tu vis actuellement.",
       "finish": "Commencer mon parcours i+"
     }
+  },
+  "consentement": {
+    "title": "Tes données, ton choix",
+    "description": "Avant de commencer, choisis comment i23 gère tes informations. Tu peux modifier ça en tout temps dans tes paramètres.",
+    "modeSauvegarde": {
+      "label": "Sauvegarde de tes données",
+      "enregistre": "Enregistré",
+      "enregistreDesc": "Tes schémas, résultats et progression sont sauvegardés. Tu reprends là où tu as laissé.",
+      "session": "Session seulement",
+      "sessionDesc": "Rien n'est sauvegardé. Tes données disparaissent à la fin de la session. Tu peux imprimer tes résultats."
+    },
+    "partageCoach": {
+      "label": "Partage avec ton coach",
+      "aucun": "Aucun partage",
+      "aucunDesc": "Ton coach ne voit rien.",
+      "progression": "Progression seulement",
+      "progressionDesc": "Ton coach voit ton étape actuelle et tes badges.",
+      "progression_schemas": "Progression et schémas",
+      "progression_schemasDesc": "Ton coach voit ta progression et tes schémas d'expérience.",
+      "tout": "Tout partager",
+      "toutDesc": "Ton coach voit tout : progression, schémas, bilan, résultats d'outils."
+    },
+    "loi25": "Conformément à la Loi 25 (Québec), tu as le droit de savoir ce qui est collecté, d'en demander la suppression, et de retirer ton consentement en tout temps.",
+    "confirmer": "Confirmer et commencer",
+    "modifier": "Modifier mes préférences",
+    "sauvegarde": "Préférences sauvegardées"
   }
 }
