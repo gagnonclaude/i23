@@ -12,31 +12,46 @@ const intlMiddleware = createIntlMiddleware({
 const protectedPaths = ["/dashboard", "/schema", "/outils", "/bilan-depart", "/quiz", "/initialisation", "/experimentation", "/trajectoire"];
 const apiProtectedPaths = ["/api/stripe/checkout", "/api/stripe/link-subscription", "/api/ia", "/api/parcours", "/api/quiz", "/api/badges", "/api/mc-progress"];
 const authRateLimitPaths = ["/auth/login", "/auth/signup"];
-const MAX_AUTH_ATTEMPTS = 5;
-const RATE_LIMIT_WINDOW = 60_000;
 
-function checkRateLimit(request: NextRequest): NextResponse | null {
-  const attemptsCookie = request.cookies.get("auth_attempts")?.value;
-  const attempts = attemptsCookie ? JSON.parse(attemptsCookie) : [];
+// Routes API sensibles avec leurs limites
+const apiRateLimits: { path: string; max: number; windowMs: number }[] = [
+  { path: "/api/ia/chat",              max: 20,  windowMs: 3_600_000 }, // 20/heure
+  { path: "/api/stripe/checkout",      max: 10,  windowMs:   60_000  }, // 10/minute
+  { path: "/api/stripe/link-subscription", max: 10, windowMs: 60_000 }, // 10/minute
+  { path: "/api/attente",              max: 3,   windowMs:   60_000  }, // 3/minute
+  { path: "/api/initialisation",       max: 10,  windowMs:   60_000  }, // 10/minute
+  { path: "/api/quiz",                 max: 30,  windowMs:   60_000  }, // 30/minute
+  { path: "/api/schemas",              max: 30,  windowMs:   60_000  }, // 30/minute
+  { path: "/api/outils-resultats",     max: 30,  windowMs:   60_000  }, // 30/minute
+  { path: "/api/compte/suppression",   max: 3,   windowMs: 3_600_000 }, // 3/heure
+];
+
+// Rate limiting par IP en mémoire
+// Note : migrer vers Redis (Upstash) pour persistance entre instances Vercel
+const ipStore = new Map<string, { count: number; resetAt: number }>();
+
+const AUTH_MAX = 5;
+const AUTH_WINDOW = 60_000;
+
+function getIP(request: NextRequest): string {
+  return (
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown"
+  );
+}
+
+function checkIPRateLimit(key: string, max: number, windowMs: number): boolean {
   const now = Date.now();
-  const recentAttempts = attempts.filter((t: number) => now - t < RATE_LIMIT_WINDOW);
+  const entry = ipStore.get(key);
 
-  if (recentAttempts.length >= MAX_AUTH_ATTEMPTS) {
-    return new NextResponse("Trop de tentatives. Reessaie dans une minute.", {
-      status: 429,
-      headers: { "Retry-After": "60" },
-    });
+  if (!entry || now > entry.resetAt) {
+    ipStore.set(key, { count: 1, resetAt: now + windowMs });
+    return false; // pas limité
   }
 
-  const response = NextResponse.next();
-  response.cookies.set("auth_attempts", JSON.stringify([...recentAttempts, now]), {
-    httpOnly: true,
-    secure: true,
-    sameSite: "strict",
-    maxAge: RATE_LIMIT_WINDOW / 1000,
-  });
-
-  return null;
+  entry.count++;
+  return entry.count > max; // limité si dépasse
 }
 
 async function getUser(request: NextRequest) {
@@ -59,11 +74,30 @@ async function getUser(request: NextRequest) {
 
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const ip = getIP(request);
 
+  // Rate limiting auth par IP (remplace le cookie)
   const isAuthRateLimited = authRateLimitPaths.some((p) => pathname.startsWith(p));
   if (isAuthRateLimited) {
-    const rateLimitResponse = checkRateLimit(request);
-    if (rateLimitResponse) return rateLimitResponse;
+    const key = `auth:${ip}`;
+    if (checkIPRateLimit(key, AUTH_MAX, AUTH_WINDOW)) {
+      return new NextResponse("Trop de tentatives. Reessaie dans une minute.", {
+        status: 429,
+        headers: { "Retry-After": "60" },
+      });
+    }
+  }
+
+  // Rate limiting routes API par IP
+  const apiLimit = apiRateLimits.find((r) => pathname.startsWith(r.path));
+  if (apiLimit) {
+    const key = `api:${apiLimit.path}:${ip}`;
+    if (checkIPRateLimit(key, apiLimit.max, apiLimit.windowMs)) {
+      return new NextResponse("Trop de requetes.", {
+        status: 429,
+        headers: { "Retry-After": String(Math.ceil(apiLimit.windowMs / 1000)) },
+      });
+    }
   }
 
   const isProtected = protectedPaths.some((p) => pathname.startsWith(`/${pathname.split("/")[1]}${p}`) || pathname.endsWith(p) || pathname.includes(`${p}/`));
@@ -87,5 +121,5 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/(fr|en)/:path*", "/((?!api|_next|_vercel|auth|.*\\..*).*)", "/api/stripe/checkout/:path*", "/api/stripe/link-subscription/:path*", "/api/ia/:path*", "/api/parcours/:path*", "/api/quiz/:path*", "/api/badges/:path*", "/api/mc-progress/:path*"],
+  matcher: ["/", "/(fr|en)/:path*", "/((?!api|_next|_vercel|auth|.*\\..*).*)", "/api/stripe/checkout/:path*", "/api/stripe/link-subscription/:path*", "/api/ia/:path*", "/api/parcours/:path*", "/api/quiz/:path*", "/api/badges/:path*", "/api/mc-progress/:path*", "/api/attente/:path*", "/api/initialisation/:path*", "/api/schemas/:path*", "/api/outils-resultats/:path*", "/api/compte/suppression/:path*"],
 };
