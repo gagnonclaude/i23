@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { calculerResultat, quizMethode } from "@/lib/quiz";
+import { calculerResultat, getQuizByMC, quizMethode } from "@/lib/quiz";
 import { earnBadge } from "@/lib/badges";
 import { advanceTo } from "@/lib/parcours";
 import { validateOrigin } from "@/lib/csrf";
@@ -8,10 +8,14 @@ import { logAudit } from "@/lib/audit";
 
 export async function GET(req: NextRequest) {
   const mcId = req.nextUrl.searchParams.get("mc_id");
-  if (mcId === "methode-i+") {
-    return NextResponse.json({ questions: quizMethode });
+  if (!mcId) return NextResponse.json({ error: "mc_id requis" }, { status: 400 });
+
+  const questions = getQuizByMC(mcId);
+  if (questions.length === 0) {
+    return NextResponse.json({ error: "MC non trouvé" }, { status: 404 });
   }
-  return NextResponse.json({ error: "MC non trouvé" }, { status: 404 });
+
+  return NextResponse.json({ questions });
 }
 
 export async function POST(req: NextRequest) {
@@ -29,7 +33,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "mc_id et reponses requis" }, { status: 400 });
   }
 
-  const questions = mc_id === "methode-i+" ? quizMethode : [];
+  const questions = getQuizByMC(mc_id);
   if (questions.length === 0) {
     return NextResponse.json({ error: "Quiz non trouvé pour cette MC" }, { status: 404 });
   }
