@@ -372,7 +372,8 @@
       "masterclass": { "title": "i+ Masterclass", "description": "Understand a theme, theory and activation." },
       "bilan": { "title": "Experience Review", "description": "Observe results, adjust and progress." },
       "groupes": { "title": "i+ Groups", "description": "Share, learn from others, receive support." },
-      "ia": { "title": "i+ AI Coach", "description": "An intelligent coach that accompanies you through the method." }
+      "ia": { "title": "i+ AI Coach", "description": "An intelligent coach that accompanies you through the method." },
+      "securite": { "title": "Account Security", "description": "Manage 2FA and your account security." }
     }
   },
   "confidentialite": {

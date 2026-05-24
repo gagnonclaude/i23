@@ -106,6 +106,7 @@ export function DashboardContent({ user, bilan, parcours, badges }: { user: User
             { key: "bilan", href: "/bilan", icon: "📋" },
             { key: "groupes", href: "/groupes", icon: "👥" },
             { key: "ia", href: "/ia", icon: "🤖" },
+            { key: "securite", href: "/securite", icon: "🔒" },
           ] as const).map(({ key, href, icon }) => (
             <Link key={key} href={href}>
               <Card hover padding="md">
