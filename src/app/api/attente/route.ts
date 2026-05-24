@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const ipAttempts = new Map<string, { count: number; resetAt: number }>();
 const MAX_ATTEMPTS = 3;
@@ -47,6 +42,7 @@ export async function POST(req: NextRequest) {
 
   const safeLocale = locale === "en" ? "en" : "fr";
 
+  const supabase = createAdminClient();
   const { error } = await supabase
     .from("attente_emails")
     .upsert({ email: email.toLowerCase().trim(), locale: safeLocale }, { onConflict: "email" });

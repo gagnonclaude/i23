@@ -27,6 +27,10 @@ export async function DELETE(req: NextRequest) {
     "outils_resultats",
     "bilans_depart",
     "subscriptions",
+    "parcours_progression",
+    "quiz_results",
+    "badges_earned",
+    "mc_progression",
   ] as const;
 
   for (const table of tables) {

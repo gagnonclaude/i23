@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { niveauxMaslow, bilanQuestions, thematiquesParNiveau, type NiveauMaslow } from "@/lib/initialisation";
@@ -16,6 +15,7 @@ export function InitialisationForm() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const [profil, setProfil] = useState({ prenom: "", motivation: "" });
   const [bilanReponses, setBilanReponses] = useState<Record<string, number>>({});
@@ -46,13 +46,6 @@ export function InitialisationForm() {
 
   const handleSubmit = async () => {
     setLoading(true);
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      setLoading(false);
-      return;
-    }
 
     const safeProfil = {
       prenom: sanitize(profil.prenom).slice(0, 50),
@@ -74,19 +67,22 @@ export function InitialisationForm() {
         : 0;
     });
 
-    await Promise.all([
-      supabase.from("bilans_depart").upsert({
-        user_id: user.id,
-        reponses: bilanReponses,
-        scores_dimensions: scores,
-        completed_at: new Date().toISOString(),
-      }, { onConflict: "user_id" }),
-      supabase.from("parcours_progression").upsert({
-        user_id: user.id,
-        etape_actuelle: "mc-methode",
-        date_modification: new Date().toISOString(),
-      }, { onConflict: "user_id" }),
-    ]);
+    try {
+      const res = await fetch("/api/initialisation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reponses: bilanReponses, scores_dimensions: scores }),
+      });
+      if (!res.ok) {
+        setError("Erreur lors de la sauvegarde. Réessaie.");
+        setLoading(false);
+        return;
+      }
+    } catch {
+      setError("Erreur de connexion. Réessaie.");
+      setLoading(false);
+      return;
+    }
 
     router.push("/dashboard");
   };

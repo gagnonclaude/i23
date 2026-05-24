@@ -376,7 +376,8 @@
       "masterclass": { "title": "Masterclass i+", "description": "Comprendre une thématique, théorie et activation." },
       "bilan": { "title": "Bilan des expériences", "description": "Observer les résultats, ajuster et progresser." },
       "groupes": { "title": "Groupes i+", "description": "Partager, apprendre des autres, recevoir du soutien." },
-      "ia": { "title": "IA Coach i+", "description": "Un coach intelligent qui t'accompagne dans la méthode." }
+      "ia": { "title": "IA Coach i+", "description": "Un coach intelligent qui t'accompagne dans la méthode." },
+      "securite": { "title": "Sécurité du compte", "description": "Gérer le 2FA et la sécurité de ton compte." }
     }
   },
   "confidentialite": {

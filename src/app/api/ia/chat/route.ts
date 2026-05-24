@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 const RATE_LIMITS = new Map<string, { count: number; resetAt: number }>();
-const MAX_REQUESTS_PER_MINUTE = 15;
-const RATE_LIMIT_WINDOW = 60_000;
+const MAX_REQUESTS_PER_HOUR = 20;
+const RATE_LIMIT_WINDOW = 3_600_000;
 const MAX_MESSAGES = 20;
 const MAX_MESSAGE_LENGTH = 2000;
 const VALID_LEVELS = ["discret", "accompagnement", "intensif"];
+const VALID_ROLES = ["user", "assistant"];
 
 const SYSTEM_PROMPT = `Tu es Coach i+, un coach intelligent spécialisé dans la Méthode i+.
 
@@ -58,7 +59,7 @@ function checkRateLimit(userId: string): boolean {
     return false;
   }
   entry.count++;
-  return entry.count > MAX_REQUESTS_PER_MINUTE;
+  return entry.count > MAX_REQUESTS_PER_HOUR;
 }
 
 export async function POST(req: NextRequest) {
@@ -70,7 +71,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (checkRateLimit(user.id)) {
-    return NextResponse.json({ error: "Trop de requetes. Reessaie dans une minute." }, { status: 429 });
+    return NextResponse.json({ error: "Trop de requetes. Limite de 20 messages par heure." }, { status: 429 });
   }
 
   let body: unknown;
@@ -90,14 +91,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Maximum ${MAX_MESSAGES} messages` }, { status: 400 });
   }
 
+  const safeMessages: { role: string; content: string }[] = [];
   for (const msg of messages) {
-    if (!msg || typeof msg !== "object" || !("content" in (msg as Record<string, unknown>))) {
+    if (!msg || typeof msg !== "object" || !("content" in (msg as Record<string, unknown>)) || !("role" in (msg as Record<string, unknown>))) {
       return NextResponse.json({ error: "Format de message invalide" }, { status: 400 });
     }
-    const content = (msg as Record<string, unknown>).content;
+    const { role, content } = msg as { role: unknown; content: unknown };
+    if (typeof role !== "string" || !VALID_ROLES.includes(role)) {
+      return NextResponse.json({ error: "Role de message invalide" }, { status: 400 });
+    }
     if (typeof content !== "string" || content.length > MAX_MESSAGE_LENGTH) {
       return NextResponse.json({ error: "Message trop long" }, { status: 400 });
     }
+    safeMessages.push({ role, content });
   }
 
   const safeLevel = VALID_LEVELS.includes(level as string) ? (level as string) : "accompagnement";
@@ -126,7 +132,7 @@ export async function POST(req: NextRequest) {
         model: "gpt-4o-mini",
         messages: [
           { role: "system", content: systemMessage },
-          ...messages,
+          ...safeMessages,
         ],
         temperature: 0.7,
         max_tokens: 1000,

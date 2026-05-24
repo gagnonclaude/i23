@@ -4,6 +4,10 @@ import { NextResponse } from "next/server";
 function isSafeRedirect(next: string): boolean {
   if (!next.startsWith("/")) return false;
   if (next.startsWith("//")) return false;
+  if (next.startsWith("/\\")) return false;
+  if (next.startsWith("/@")) return false;
+  if (/%2f/i.test(next) || /%5c/i.test(next)) return false;
+  if (/\.\./.test(next)) return false;
   return true;
 }
 

@@ -14,8 +14,8 @@ export async function POST(req: NextRequest) {
 
   const { session_id } = await req.json();
 
-  if (!session_id) {
-    return NextResponse.json({ error: "session_id manquant" }, { status: 400 });
+  if (!session_id || typeof session_id !== "string" || !/^cs_[a-zA-Z0-9]+$/.test(session_id)) {
+    return NextResponse.json({ error: "session_id invalide" }, { status: 400 });
   }
 
   try {
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     } catch {}
 
     if (!currentPeriodEnd) {
-      currentPeriodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+      return NextResponse.json({ error: "Impossible de déterminer la période" }, { status: 500 });
     }
 
     const { error } = await supabase

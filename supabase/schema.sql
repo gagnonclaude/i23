@@ -27,8 +27,8 @@ create policy "Un membre modifie son bilan"
 create table if not exists public.subscriptions (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references auth.users(id) on delete cascade not null,
-  stripe_customer_id text,
-  stripe_subscription_id text,
+  stripe_customer_id text not null,
+  stripe_subscription_id text not null,
   stripe_price_id text,
   status text default 'active',
   current_period_end timestamptz,
@@ -120,11 +120,18 @@ create index if not exists idx_outils_resultats_user_id on public.outils_resulta
 
 -- Contrainte unique sur stripe_subscription_id (évite doublons webhook)
 create unique index if not exists idx_subscriptions_stripe_sub_id on public.subscriptions(stripe_subscription_id) where stripe_subscription_id is not null;
+create index if not exists idx_subscriptions_stripe_cust_id on public.subscriptions(stripe_customer_id);
+create index if not exists idx_mc_progression_mc_id on public.mc_progression(mc_id);
+create index if not exists idx_quiz_results_mc_id on public.quiz_results(mc_id);
 
 -- RLS INSERT manquante sur subscriptions (le webhook en a besoin via admin, mais pour complétude)
 create policy "Un membre insère ses abonnements"
   on public.subscriptions for insert
   with check (auth.uid() = user_id);
+
+create policy "Un membre modifie ses abonnements"
+  on public.subscriptions for update
+  using (auth.uid() = user_id);
 
 -- Table pour la progression du parcours séquentiel
 create table if not exists public.parcours_progression (
