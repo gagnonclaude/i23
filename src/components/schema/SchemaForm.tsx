@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Textarea } from "@/components/ui/Textarea";
 import { useLocalDraft } from "@/hooks/useLocalDraft";
+import { useConsentement } from "@/hooks/useConsentement";
 
 const STEPS = [
   "declencheurs",
@@ -26,6 +27,8 @@ const etapesInitial = Object.fromEntries(methodeConfig.etapes.map((e) => [e.nume
 export function SchemaForm() {
   const t = useTranslations("schema");
   const router = useRouter();
+  const { consentement } = useConsentement();
+  const modeSession = consentement.mode_sauvegarde === "session";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -76,6 +79,13 @@ export function SchemaForm() {
   };
 
   const handleSubmit = async () => {
+    // Mode session : pas de sauvegarde en BD, on propose l'impression
+    if (modeSession) {
+      window.print();
+      clearAll();
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -375,7 +385,9 @@ export function SchemaForm() {
         {step < STEPS.length - 1 ? (
           <Button onClick={() => setStep(step + 1)} disabled={!canContinue()}>{t("next")}</Button>
         ) : (
-          <Button onClick={handleSubmit} loading={loading}>{t("submit")}</Button>
+          <Button onClick={handleSubmit} loading={loading}>
+            {modeSession ? t("imprimer") : t("submit")}
+          </Button>
         )}
       </div>
     </div>

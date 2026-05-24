@@ -287,6 +287,8 @@
     "previous": "Previous",
     "next": "Next",
     "submit": "Save my pattern",
+    "imprimer": "Print my results",
+    "draftSaved": "Draft saved",
     "thematiques": {
       "travail": "Work",
       "relations": "Relationships",
@@ -527,5 +529,31 @@
     "connexion": "Log in",
     "confidentialite": "Privacy",
     "copyright": "All rights reserved."
+  },
+  "consentement": {
+    "title": "Your data, your choice",
+    "description": "Before you start, choose how i23 handles your information. You can change this anytime in your settings.",
+    "modeSauvegarde": {
+      "label": "Data saving",
+      "enregistre": "Saved",
+      "enregistreDesc": "Your schemas, results and progress are saved. Pick up right where you left off.",
+      "session": "Session only",
+      "sessionDesc": "Nothing is saved. Your data disappears at the end of the session. You can print your results."
+    },
+    "partageCoach": {
+      "label": "Share with your coach",
+      "aucun": "No sharing",
+      "aucunDesc": "Your coach sees nothing.",
+      "progression": "Progress only",
+      "progressionDesc": "Your coach sees your current step and badges.",
+      "progression_schemas": "Progress and schemas",
+      "progression_schemasDesc": "Your coach sees your progress and experience schemas.",
+      "tout": "Share everything",
+      "toutDesc": "Your coach sees everything: progress, schemas, assessment, tool results."
+    },
+    "loi25": "In accordance with Quebec Law 25, you have the right to know what is collected, request deletion, and withdraw your consent at any time.",
+    "confirmer": "Confirm and start",
+    "modifier": "Update my preferences",
+    "sauvegarde": "Preferences saved"
   }
 }

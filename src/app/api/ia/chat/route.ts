@@ -74,6 +74,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Non autorise" }, { status: 401 });
   }
 
+  // Lire le niveau de partage coach du membre
+  const { data: consentement } = await supabase
+    .from("membre_consentement")
+    .select("mode_sauvegarde, partage_coach")
+    .eq("user_id", user.id)
+    .single();
+
+  const partageCoach = consentement?.partage_coach ?? "aucun";
+  const modeSession = consentement?.mode_sauvegarde === "session";
+
   if (checkRateLimit(user.id)) {
     return NextResponse.json({ error: "Trop de requetes. Limite de 20 messages par heure." }, { status: 429 });
   }
@@ -118,7 +128,16 @@ export async function POST(req: NextRequest) {
     intensif: "Tu es proactif. Tu analyses les messages, tu identifies les schémas, tu proposes des actions concrètes, tu suis la progression.",
   };
 
-  const systemMessage = `${SYSTEM_PROMPT}\n\nNiveau d'accompagnement : ${safeLevel}\n${levelInstructions[safeLevel]}`;
+  // Adapter le prompt selon le mode et le partage coach
+  const modeNote = modeSession
+    ? "\n\nIMPORTANT : Le membre est en mode session. Rien n'est sauvegardé. Ne réfère pas à des données passées."
+    : "";
+
+  const partageNote = partageCoach === "aucun"
+    ? "\n\nConfidentialité : Le membre n'a pas activé le partage avec son coach. Ne mentionne pas de partage de données."
+    : `\n\nPartage coach actif : niveau "${partageCoach}". Tu peux référencer les données partagées pour personnaliser l'accompagnement.`;
+
+  const systemMessage = `${SYSTEM_PROMPT}\n\nNiveau d'accompagnement : ${safeLevel}\n${levelInstructions[safeLevel]}${modeNote}${partageNote}`;
 
   const openaiKey = process.env.OPENAI_API_KEY;
   if (!openaiKey) {
