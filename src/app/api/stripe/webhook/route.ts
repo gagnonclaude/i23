@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { logAudit } from "@/lib/audit";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -18,6 +19,7 @@ export async function POST(req: NextRequest) {
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch {
+    await logAudit({ action: "stripe.webhook.signature_invalide", metadata: { signature: signature?.slice(0, 20) } });
     return NextResponse.json({ error: "Signature invalide" }, { status: 400 });
   }
 
@@ -60,6 +62,7 @@ export async function POST(req: NextRequest) {
           console.error("Erreur upsert subscription (userId):", error);
           return NextResponse.json({ error: "Erreur enregistrement" }, { status: 500 });
         }
+        await logAudit({ action: "stripe.webhook.abonnement_active", user_id: userId, metadata: { subscription_id: subscription, session_id: session.id } });
       } else if (customerEmail) {
         const { data: { users }, error: listError } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
 
@@ -103,6 +106,7 @@ export async function POST(req: NextRequest) {
       if (error) {
         console.error("Erreur update subscription:", error);
       }
+      await logAudit({ action: "stripe.webhook.abonnement_mis_a_jour", metadata: { subscription_id: subscription.id, status: subscription.status } });
       break;
     }
 
@@ -116,6 +120,7 @@ export async function POST(req: NextRequest) {
       if (error) {
         console.error("Erreur cancel subscription:", error);
       }
+      await logAudit({ action: "stripe.webhook.abonnement_annule", metadata: { subscription_id: subscription.id } });
       break;
     }
   }

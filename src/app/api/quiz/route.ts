@@ -4,6 +4,7 @@ import { calculerResultat, quizMethode } from "@/lib/quiz";
 import { earnBadge } from "@/lib/badges";
 import { advanceTo } from "@/lib/parcours";
 import { validateOrigin } from "@/lib/csrf";
+import { logAudit } from "@/lib/audit";
 
 export async function GET(req: NextRequest) {
   const mcId = req.nextUrl.searchParams.get("mc_id");
@@ -47,9 +48,11 @@ export async function POST(req: NextRequest) {
     if (mc_id === "methode-i+") {
       await earnBadge(user.id, "methode-i+");
       await advanceTo("badge-methode");
+      await logAudit({ action: "quiz.badge_attribue", user_id: user.id, metadata: { mc_id, badge_type: "methode-i+", score: resultat.score } });
     } else {
       await earnBadge(user.id, "thematique", mc_id);
       await advanceTo("badge-thematique");
+      await logAudit({ action: "quiz.badge_attribue", user_id: user.id, metadata: { mc_id, badge_type: "thematique", score: resultat.score } });
     }
   }
 

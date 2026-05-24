@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { createClient } from "@/lib/supabase/server";
 import { ALLOWED_PRICES } from "@/lib/config-public";
 import { validateOrigin } from "@/lib/csrf";
+import { logAudit } from "@/lib/audit";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -30,6 +31,12 @@ export async function POST(req: NextRequest) {
     success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard?checkout=success`,
     cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/acces?checkout=cancelled`,
     metadata: { userId: user.id },
+  });
+
+  await logAudit({
+    action: "stripe.checkout.session_created",
+    user_id: user.id,
+    metadata: { priceId, session_id: session.id },
   });
 
   return NextResponse.json({ url: session.url });

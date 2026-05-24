@@ -231,3 +231,21 @@ create index if not exists idx_parcours_progression_user_id on public.parcours_p
 create index if not exists idx_quiz_results_user_id on public.quiz_results(user_id);
 create index if not exists idx_badges_earned_user_id on public.badges_earned(user_id);
 create index if not exists idx_mc_progression_user_id on public.mc_progression(user_id);
+
+-- Table audit_logs : trace des actions sensibles
+create table if not exists public.audit_logs (
+  id uuid default gen_random_uuid() primary key,
+  action text not null,
+  user_id uuid references auth.users(id) on delete set null,
+  ip text,
+  metadata jsonb default '{}',
+  created_at timestamptz default now()
+);
+
+-- RLS : lecture réservée aux admins seulement (aucun membre ne voit les logs des autres)
+alter table public.audit_logs enable row level security;
+
+-- Index pour les recherches fréquentes
+create index if not exists idx_audit_logs_user_id on public.audit_logs(user_id);
+create index if not exists idx_audit_logs_action on public.audit_logs(action);
+create index if not exists idx_audit_logs_created_at on public.audit_logs(created_at desc);

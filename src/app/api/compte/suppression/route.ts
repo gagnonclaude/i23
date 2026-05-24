@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { validateOrigin } from "@/lib/csrf";
+import { logAudit } from "@/lib/audit";
 
 export async function DELETE(req: NextRequest) {
   const originError = validateOrigin(req);
   if (originError) return originError;
+
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? req.headers.get("x-real-ip") ?? "unknown";
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -52,6 +55,8 @@ export async function DELETE(req: NextRequest) {
   if (authError) {
     return NextResponse.json({ error: "Erreur lors de la suppression du compte" }, { status: 500 });
   }
+
+  await logAudit({ action: "compte.suppression", user_id: userId, ip });
 
   return NextResponse.json({ message: "Compte supprime avec succes" }, { status: 200 });
 }
