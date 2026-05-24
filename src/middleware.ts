@@ -10,7 +10,7 @@ const intlMiddleware = createIntlMiddleware({
 });
 
 const protectedPaths = ["/dashboard", "/schema", "/outils", "/bilan-depart", "/quiz", "/initialisation", "/experimentation", "/trajectoire"];
-const apiProtectedPaths = ["/api/stripe/checkout", "/api/stripe/link-subscription", "/api/ia", "/api/parcours", "/api/quiz", "/api/badges", "/api/mc-progress", "/api/consentement"];
+const apiProtectedPaths = ["/api/stripe/checkout", "/api/stripe/link-subscription", "/api/ia", "/api/parcours", "/api/quiz", "/api/badges", "/api/mc-progress", "/api/consentement", "/api/declencheurs"];
 const authRateLimitPaths = ["/auth/login", "/auth/signup"];
 
 // Routes API sensibles avec leurs limites
@@ -121,5 +121,5 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/(fr|en)/:path*", "/((?!api|_next|_vercel|auth|.*\\..*).*)", "/api/stripe/checkout/:path*", "/api/stripe/link-subscription/:path*", "/api/ia/:path*", "/api/parcours/:path*", "/api/quiz/:path*", "/api/badges/:path*", "/api/mc-progress/:path*", "/api/attente/:path*", "/api/initialisation/:path*", "/api/schemas/:path*", "/api/outils-resultats/:path*", "/api/compte/suppression/:path*", "/api/consentement/:path*"],
+  matcher: ["/", "/(fr|en)/:path*", "/((?!api|_next|_vercel|auth|.*\\..*).*)", "/api/stripe/checkout/:path*", "/api/stripe/link-subscription/:path*", "/api/ia/:path*", "/api/parcours/:path*", "/api/quiz/:path*", "/api/badges/:path*", "/api/mc-progress/:path*", "/api/attente/:path*", "/api/initialisation/:path*", "/api/schemas/:path*", "/api/outils-resultats/:path*", "/api/compte/suppression/:path*", "/api/consentement/:path*", "/api/declencheurs/:path*"],
 };

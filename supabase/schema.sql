@@ -276,3 +276,40 @@ alter table public.audit_logs enable row level security;
 create index if not exists idx_audit_logs_user_id on public.audit_logs(user_id);
 create index if not exists idx_audit_logs_action on public.audit_logs(action);
 create index if not exists idx_audit_logs_created_at on public.audit_logs(created_at desc);
+
+-- Table déclencheurs (par thématique, plusieurs actifs simultanément)
+create table if not exists public.declencheurs (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users(id) on delete cascade not null,
+  thematique text not null,
+  texte text not null,
+  statut text not null default 'actif', -- 'actif' | 'archive'
+  created_at timestamptz default now()
+);
+
+alter table public.declencheurs enable row level security;
+
+create policy "Un membre voit ses déclencheurs"
+  on public.declencheurs for select
+  using (auth.uid() = user_id);
+
+create policy "Un membre crée ses déclencheurs"
+  on public.declencheurs for insert
+  with check (auth.uid() = user_id);
+
+create policy "Un membre modifie ses déclencheurs"
+  on public.declencheurs for update
+  using (auth.uid() = user_id);
+
+create index if not exists idx_declencheurs_user_id on public.declencheurs(user_id);
+create index if not exists idx_declencheurs_thematique on public.declencheurs(user_id, thematique);
+
+-- Enrichissement schemas_experience pour l'Outil Schéma i+ interactif
+alter table public.schemas_experience
+  add column if not exists declencheur_id uuid references public.declencheurs(id) on delete set null,
+  add column if not exists tableau jsonb default '{}',
+  add column if not exists histoire_originale text,
+  add column if not exists histoire_experimentee text,
+  add column if not exists version int default 1;
+
+create index if not exists idx_schemas_experience_declencheur on public.schemas_experience(declencheur_id);
