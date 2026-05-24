@@ -1,9 +1,9 @@
 import { setRequestLocale } from "next-intl/server";
-import HomeContent from "@/components/HomeContent";
+import { ComingSoon } from "@/components/ComingSoon";
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  return <HomeContent locale={locale} />;
+  return <ComingSoon />;
 }
