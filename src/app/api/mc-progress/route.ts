@@ -25,20 +25,32 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Non autorise" }, { status: 401 });
 
   const body = await req.json();
-  const { mc_id, section_actuelle, completee } = body as { mc_id: string; section_actuelle: number; completee?: boolean };
+  const { mc_id, section_actuelle } = body as { mc_id: string; section_actuelle: number };
 
   if (!mc_id) return NextResponse.json({ error: "mc_id requis" }, { status: 400 });
+  if (typeof section_actuelle !== "number" || section_actuelle < 0) return NextResponse.json({ error: "section_actuelle invalide" }, { status: 400 });
+
+  const { data: existing } = await supabase
+    .from("mc_progression")
+    .select("completee, section_actuelle")
+    .eq("user_id", user.id)
+    .eq("mc_id", mc_id)
+    .single();
+
+  const alreadyCompletee = (existing as { completee: boolean } | null)?.completee || false;
+  const currentSection = (existing as { section_actuelle: number } | null)?.section_actuelle || 0;
+  const isCompletee = alreadyCompletee || (mc_id === "methode-i+" ? section_actuelle >= 7 : section_actuelle >= 2);
 
   const { error } = await supabase
     .from("mc_progression")
     .upsert(
-      { user_id: user.id, mc_id, section_actuelle, completee: completee || false, updated_at: new Date().toISOString() },
+      { user_id: user.id, mc_id, section_actuelle, completee: isCompletee, updated_at: new Date().toISOString() },
       { onConflict: "user_id,mc_id" }
     );
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  if (completee) {
+  if (isCompletee && !alreadyCompletee) {
     const { data: progression } = await supabase
       .from("parcours_progression")
       .select("etape_actuelle")

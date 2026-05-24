@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "@/i18n/routing";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -18,6 +17,7 @@ export function ScanObservation() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [situation, setSituation] = useState("");
   const [perceptions, setPerceptions] = useState<PerceptionItem[]>([
     { text: "", type: "" },
@@ -63,27 +63,37 @@ export function ScanObservation() {
 
   const handleSubmit = async () => {
     setLoading(true);
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
 
-    if (user) {
-      await supabase.from("outils_resultats").insert({
-        user_id: user.id,
-        outil_type: "scan_observation",
-        etape_numero: 1,
-        reponses: {
-          situation,
-          perceptions: perceptions.filter((p) => p.text.trim()),
-          menace,
-          menaceImpact,
-          opportunite,
-          faitOublie,
-          actionObservation,
-          actionQuestion,
-        },
-        menaces: [menace],
-        opportunites: [opportunite],
+    try {
+      const res = await fetch("/api/outils-resultats", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          outil_type: "scan_observation",
+          etape_numero: 1,
+          reponses: {
+            situation,
+            perceptions: perceptions.filter((p) => p.text.trim()),
+            menace,
+            menaceImpact,
+            opportunite,
+            faitOublie,
+            actionObservation,
+            actionQuestion,
+          },
+          menaces: [menace],
+          opportunites: [opportunite],
+        }),
       });
+      if (!res.ok) {
+        setError("Erreur lors de la sauvegarde. Réessaie.");
+        setLoading(false);
+        return;
+      }
+    } catch {
+      setError("Erreur de connexion. Réessaie.");
+      setLoading(false);
+      return;
     }
 
     router.push("/outils/1");

@@ -36,15 +36,17 @@ export async function POST(req: NextRequest) {
         try {
           const sub = await stripe.subscriptions.retrieve(subscription) as unknown as Stripe.Subscription & { current_period_end: number };
           currentPeriodEnd = new Date(sub.current_period_end * 1000).toISOString();
-        } catch {}
+        } catch (err) {
+          console.error("Erreur retrieval subscription Stripe:", err);
+        }
       }
 
       if (!currentPeriodEnd) {
-        currentPeriodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+        return NextResponse.json({ error: "Impossible de déterminer la période" }, { status: 500 });
       }
 
       if (userId) {
-        await supabase
+        const { error } = await supabase
           .from("subscriptions")
           .upsert({
             user_id: userId,
@@ -53,12 +55,23 @@ export async function POST(req: NextRequest) {
             status: "active",
             current_period_end: currentPeriodEnd,
           }, { onConflict: "stripe_subscription_id" });
+
+        if (error) {
+          console.error("Erreur upsert subscription (userId):", error);
+          return NextResponse.json({ error: "Erreur enregistrement" }, { status: 500 });
+        }
       } else if (customerEmail) {
-        const { data: { users } } = await supabase.auth.admin.listUsers();
+        const { data: { users }, error: listError } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
+
+        if (listError) {
+          console.error("Erreur listUsers:", listError);
+          return NextResponse.json({ error: "Erreur recherche utilisateur" }, { status: 500 });
+        }
+
         const existingUser = users?.find(u => u.email === customerEmail);
 
         if (existingUser) {
-          await supabase
+          const { error } = await supabase
             .from("subscriptions")
             .upsert({
               user_id: existingUser.id,
@@ -67,6 +80,11 @@ export async function POST(req: NextRequest) {
               status: "active",
               current_period_end: currentPeriodEnd,
             }, { onConflict: "stripe_subscription_id" });
+
+          if (error) {
+            console.error("Erreur upsert subscription (email):", error);
+            return NextResponse.json({ error: "Erreur enregistrement" }, { status: 500 });
+          }
         }
       }
       break;
@@ -74,22 +92,30 @@ export async function POST(req: NextRequest) {
 
     case "customer.subscription.updated": {
       const subscription = event.data.object as Stripe.Subscription & { current_period_end: number };
-      await supabase
+      const { error } = await supabase
         .from("subscriptions")
         .update({
           status: subscription.status,
           current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
         })
         .eq("stripe_subscription_id", subscription.id);
+
+      if (error) {
+        console.error("Erreur update subscription:", error);
+      }
       break;
     }
 
     case "customer.subscription.deleted": {
       const subscription = event.data.object as Stripe.Subscription;
-      await supabase
+      const { error } = await supabase
         .from("subscriptions")
         .update({ status: "canceled" })
         .eq("stripe_subscription_id", subscription.id);
+
+      if (error) {
+        console.error("Erreur cancel subscription:", error);
+      }
       break;
     }
   }

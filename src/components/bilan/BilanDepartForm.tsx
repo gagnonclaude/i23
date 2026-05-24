@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "@/i18n/routing";
 
 type Dimension = "energie" | "anxiete" | "temps" | "emotions" | "motivation" | "communication" | "confiance" | "relations";
@@ -37,6 +36,7 @@ export function BilanDepartForm() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | number>>({});
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const currentQuestions = step === 0
     ? []
@@ -56,8 +56,6 @@ export function BilanDepartForm() {
 
   const handleSubmit = async () => {
     setLoading(true);
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
 
     const dimensions: Record<string, number[]> = {
       energie: [], anxiete: [], temps: [], emotions: [],
@@ -77,13 +75,21 @@ export function BilanDepartForm() {
       scores[dim] = vals.length > 0 ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length * 10) / 10 : 0;
     });
 
-    if (user) {
-      await supabase.from("bilans_depart").insert({
-        user_id: user.id,
-        reponses: answers,
-        scores_dimensions: scores,
-        completed_at: new Date().toISOString(),
+    try {
+      const res = await fetch("/api/bilan-depart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reponses: answers, scores_dimensions: scores }),
       });
+      if (!res.ok) {
+        setError("Erreur lors de la sauvegarde. Réessaie.");
+        setLoading(false);
+        return;
+      }
+    } catch {
+      setError("Erreur de connexion. Réessaie.");
+      setLoading(false);
+      return;
     }
 
     router.push("/dashboard");

@@ -28,10 +28,10 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "script-src 'self'",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https://*.supabase.co",
-      "font-src 'self'",
+      "font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com",
       "connect-src 'self' https://*.supabase.co https://api.stripe.com https://api.openai.com",
       "frame-src https://js.stripe.com https://hooks.stripe.com",
       "form-action 'self'",
