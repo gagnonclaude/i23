@@ -297,6 +297,7 @@
     "zone1": "Déclencheur",
     "zone2": "Histoire",
     "zone3": "Tableau",
+    "zone4": "Expérimenter",
     "niveauLabel": "Sphère",
     "declencheur": {
       "title": "Quel est ton déclencheur?",
@@ -327,6 +328,11 @@
       "menacesSuggestions": "Menaces",
       "opportunitesSuggestions": "Opportunités",
       "menacesIdentifiees": "Menaces identifiées"
+    },
+    "histoireExp": {
+      "title": "Ton histoire à expérimenter",
+      "description": "Réécris l'expérience avec tes nouvelles opportunités. Comment va se dérouler la prochaine fois que ce déclencheur se présente?",
+      "placeholder": "La prochaine fois que ce déclencheur se présente, voici comment je veux vivre l'expérience..."
     },
     "transformation": {
       "title": "Transformer les menaces",

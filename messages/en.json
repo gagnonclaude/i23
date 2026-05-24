@@ -293,6 +293,7 @@
     "zone1": "Trigger",
     "zone2": "Story",
     "zone3": "Table",
+    "zone4": "Experiment",
     "niveauLabel": "Sphere",
     "declencheur": {
       "title": "What is your trigger?",
@@ -323,6 +324,11 @@
       "menacesSuggestions": "Threats",
       "opportunitesSuggestions": "Opportunities",
       "menacesIdentifiees": "Identified threats"
+    },
+    "histoireExp": {
+      "title": "Your story to experiment",
+      "description": "Rewrite the experience with your new opportunities. How will it unfold next time this trigger appears?",
+      "placeholder": "Next time this trigger appears, here is how I want to experience it..."
     },
     "transformation": {
       "title": "Transform threats",

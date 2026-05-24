@@ -58,10 +58,11 @@ export function SchemaForm({ thematique = "energie" }: SchemaFormProps) {
   const [etapeActive, setEtapeActive] = useState<number | null>(null);
 
   // États UI
-  const [zone, setZone] = useState<1 | 2 | 3>(1);
+  const [zone, setZone] = useState<1 | 2 | 3 | 4>(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [outilOuvert, setOutilOuvert] = useState<number | null>(null);
+  const [histoireExperimentee, setHistoireExperimentee, clearHistoireExperimentee] = useLocalDraft("schema-histoire-exp", "");
 
   const suggestionsDeclencheurs = getDeclencheursParThematique(thematique, niveau);
 
@@ -106,6 +107,7 @@ export function SchemaForm({ thematique = "energie" }: SchemaFormProps) {
     clearNiveau();
     clearHistoire();
     clearTableau();
+    clearHistoireExperimentee();
   };
 
   const handleSubmit = async () => {
@@ -128,6 +130,7 @@ export function SchemaForm({ thematique = "energie" }: SchemaFormProps) {
             histoire,
             tableau,
             declencheur_id: declencheurId,
+            histoire_experimentee: histoireExperimentee,
           },
         }),
       });
@@ -158,7 +161,7 @@ export function SchemaForm({ thematique = "energie" }: SchemaFormProps) {
           {hasDraft && <p className="text-xs text-i23-turquoise/70 mt-0.5">{t("draftSaved")}</p>}
         </div>
         <div className="flex gap-2">
-          {([1, 2, 3] as const).map((z) => (
+          {([1, 2, 3, 4] as const).map((z) => (
             <button
               key={z}
               onClick={() => setZone(z)}
@@ -168,7 +171,7 @@ export function SchemaForm({ thematique = "energie" }: SchemaFormProps) {
                   : "bg-i23-gris-pale/50 text-i23-gris-fonce/60 hover:bg-i23-gris-pale"
               }`}
             >
-              {z === 1 ? t("zone1") : z === 2 ? t("zone2") : t("zone3")}
+              {z === 1 ? t("zone1") : z === 2 ? t("zone2") : z === 3 ? t("zone3") : t("zone4")}
             </button>
           ))}
         </div>
@@ -503,11 +506,50 @@ export function SchemaForm({ thematique = "energie" }: SchemaFormProps) {
 
           <div className="flex justify-between">
             <Button variant="ghost" onClick={() => setZone(2)}>{t("previous")}</Button>
-            <Button
-              onClick={handleSubmit}
-              loading={loading}
-              disabled={lignesAvecMenaces.length === 0 && !modeSession}
-            >
+            <Button onClick={() => setZone(4)} disabled={lignesAvecMenaces.length === 0}>
+              {t("next")}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Zone 4 -- Histoire à expérimenter */}
+      {zone === 4 && (
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-base font-semibold text-i23-gris-fonce mb-1">{t("histoireExp.title")}</h2>
+            <p className="text-sm text-i23-gris-fonce/60">{t("histoireExp.description")}</p>
+          </div>
+
+          {/* Résumé des opportunités choisies */}
+          {lignesAvecMenaces.filter(l => l.opportunite).length > 0 && (
+            <div className="bg-i23-turquoise/5 border border-i23-turquoise/20 rounded-xl p-4">
+              <p className="text-xs font-semibold text-i23-turquoise uppercase mb-2">Opportunités activées</p>
+              <div className="space-y-1.5">
+                {lignesAvecMenaces.filter(l => l.opportunite).map((l) => (
+                  <div key={l.etape} className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-full bg-i23-turquoise text-white flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
+                      {l.etape}
+                    </span>
+                    <p className="text-sm text-i23-gris-fonce">{l.opportunite}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <Textarea
+            value={histoireExperimentee}
+            onChange={(e) => setHistoireExperimentee(e.target.value)}
+            placeholder={t("histoireExp.placeholder")}
+            rows={8}
+          />
+
+          {error && <p className="text-sm text-red-500">{error}</p>}
+
+          <div className="flex justify-between">
+            <Button variant="ghost" onClick={() => setZone(3)}>{t("previous")}</Button>
+            <Button onClick={handleSubmit} loading={loading}>
               {modeSession ? t("imprimer") : t("submit")}
             </Button>
           </div>
