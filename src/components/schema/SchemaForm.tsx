@@ -10,6 +10,7 @@ import { useLocalDraft } from "@/hooks/useLocalDraft";
 import { useConsentement } from "@/hooks/useConsentement";
 import { getDeclencheursParThematique } from "@/lib/schema/declencheurs";
 import { getComposantesSuggestions } from "@/lib/schema/composantes";
+import { OutilSchemaInline } from "@/components/schema/OutilSchemaInline";
 
 interface SchemaFormProps {
   thematique?: string;
@@ -60,6 +61,7 @@ export function SchemaForm({ thematique = "energie" }: SchemaFormProps) {
   const [zone, setZone] = useState<1 | 2 | 3>(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [outilOuvert, setOutilOuvert] = useState<number | null>(null);
 
   const suggestionsDeclencheurs = getDeclencheursParThematique(thematique, niveau);
 
@@ -400,9 +402,12 @@ export function SchemaForm({ thematique = "energie" }: SchemaFormProps) {
                     <div className="col-span-1 flex justify-center">
                       {ligne.polarite === "menace" && (
                         <button
-                          onClick={() => mettreAJourLigne(ligne.etape, "outilActif", !ligne.outilActif)}
+                          onClick={() => {
+                            mettreAJourLigne(ligne.etape, "outilActif", !ligne.outilActif);
+                            setOutilOuvert(outilOuvert === ligne.etape ? null : ligne.etape);
+                          }}
                           className={`text-xs px-2 py-1 rounded transition-all ${
-                            ligne.outilActif
+                            outilOuvert === ligne.etape
                               ? "bg-i23-jaune/20 text-i23-gris-fonce font-semibold"
                               : "text-i23-gris-fonce/40 hover:text-i23-jaune"
                           }`}
@@ -454,6 +459,23 @@ export function SchemaForm({ thematique = "energie" }: SchemaFormProps) {
                           ))}
                         </div>
                       </div>
+                    </div>
+                  )}
+
+                  {/* Outil inline quand ouvert pour cette étape */}
+                  {outilOuvert === ligne.etape && ligne.polarite === "menace" && (
+                    <div className="px-4 pb-4">
+                      <OutilSchemaInline
+                        etape={ligne.etape}
+                        nomEtape={ligne.nom}
+                        menace={ligne.composante}
+                        thematique={thematique}
+                        onOpportuniteChoisie={(opportunite) => {
+                          mettreAJourLigne(ligne.etape, "opportunite", opportunite);
+                          setOutilOuvert(null);
+                        }}
+                        onFermer={() => setOutilOuvert(null)}
+                      />
                     </div>
                   )}
                 </div>
