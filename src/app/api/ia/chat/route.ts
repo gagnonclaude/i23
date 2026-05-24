@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { validateOrigin } from "@/lib/csrf";
 
 const RATE_LIMITS = new Map<string, { count: number; resetAt: number }>();
 const MAX_REQUESTS_PER_HOUR = 20;
@@ -63,6 +64,9 @@ function checkRateLimit(userId: string): boolean {
 }
 
 export async function POST(req: NextRequest) {
+  const originError = validateOrigin(req);
+  if (originError) return originError;
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 

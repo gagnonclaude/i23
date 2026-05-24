@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { validateOrigin } from "@/lib/csrf";
 
 export async function DELETE(req: NextRequest) {
+  const originError = validateOrigin(req);
+  if (originError) return originError;
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
