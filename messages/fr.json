@@ -287,44 +287,46 @@
     "loading": "Enregistrement..."
   },
   "schema": {
+    "titre": "Outil Schéma i+",
     "step": "Étape",
     "previous": "Précédent",
     "next": "Suivant",
     "submit": "Sauvegarder mon schéma",
     "imprimer": "Imprimer mes résultats",
     "draftSaved": "Brouillon sauvegardé",
-    "thematiques": {
-      "travail": "Travail",
-      "relations": "Relations",
-      "sante": "Santé",
-      "finances": "Finances",
-      "identite": "Identité",
-      "famille": "Famille",
-      "creatvite": "Créativité",
-      "spirituel": "Spirituel"
-    },
+    "zone1": "Déclencheur",
+    "zone2": "Histoire",
+    "zone3": "Tableau",
     "niveauLabel": "Sphère",
-    "declencheurs": {
-      "title": "Choisis la thématique",
-      "description": "Quelle thématique est concernée par l'expérience que tu veux travailler?"
-    },
-    "selection": {
-      "title": "Sélectionne ton déclencheur",
-      "description": "Qu'est-ce qui active cette expérience? Décris le déclencheur et choisis la sphère concernée.",
-      "placeholder": "Ex: Quand mon collègue me parle sur ce ton..."
+    "declencheur": {
+      "title": "Quel est ton déclencheur?",
+      "description": "Choisis un déclencheur existant, une suggestion, ou écris le tien.",
+      "mesDeclencheurs": "Mes déclencheurs",
+      "suggestions": "Suggestions IA",
+      "nouveau": "Nouveau déclencheur",
+      "placeholder": "Ex : Se réveiller épuisé après une nuit courte...",
+      "ajouter": "Ajouter",
+      "actif": "Déclencheur actif"
     },
     "histoire": {
-      "title": "Écris ton histoire",
-      "description": "Décris l'expérience complète comme si tu racontais l'histoire à un ami.",
+      "title": "Raconte ton histoire",
+      "description": "Décris l'expérience complète comme si tu racontais l'histoire à un ami. L'IA s'appuie sur cette histoire pour suggérer les composantes.",
       "placeholder": "Raconte ce qui se passe, ce que tu ressens, ce que tu fais..."
     },
-    "decortication": {
-      "title": "Décortique ton schéma",
-      "description": "Pour chaque étape, décris ce qui se passe dans ton expérience. Sois le plus précis possible."
-    },
-    "menaces": {
-      "title": "Identifie tes menaces",
-      "description": "Lesquelles de ces croyances ou pensées se retrouvent dans ton schéma? Sélectionne celles qui résonnent."
+    "tableau": {
+      "title": "Ton schéma d'expérience",
+      "description": "Pour chaque étape, identifie la composante, sa polarité (menace ou opportunité), et trouve l'opportunité à activer. Clique sur une étape pour voir les suggestions.",
+      "etape": "Étape",
+      "composante": "Composante",
+      "polarite": "Polarité",
+      "opportunite": "Opportunité",
+      "outil": "Outil",
+      "composantePlaceholder": "Ce qui se passe...",
+      "opportunitePlaceholder": "Ce que tu veux à la place...",
+      "ouvrirOutil": "Ouvrir l'outil i+",
+      "menacesSuggestions": "Menaces",
+      "opportunitesSuggestions": "Opportunités",
+      "menacesIdentifiees": "Menaces identifiées"
     },
     "transformation": {
       "title": "Transformer les menaces",

@@ -283,44 +283,46 @@
     "loading": "Saving..."
   },
   "schema": {
+    "titre": "i+ Pattern Tool",
     "step": "Step",
     "previous": "Previous",
     "next": "Next",
     "submit": "Save my pattern",
     "imprimer": "Print my results",
     "draftSaved": "Draft saved",
-    "thematiques": {
-      "travail": "Work",
-      "relations": "Relationships",
-      "sante": "Health",
-      "finances": "Finances",
-      "identite": "Identity",
-      "famille": "Family",
-      "creatvite": "Creativity",
-      "spirituel": "Spiritual"
-    },
+    "zone1": "Trigger",
+    "zone2": "Story",
+    "zone3": "Table",
     "niveauLabel": "Sphere",
-    "declencheurs": {
-      "title": "Choose the theme",
-      "description": "Which theme is related to the experience you want to work on?"
-    },
-    "selection": {
-      "title": "Select your trigger",
-      "description": "What activates this experience? Describe the trigger and choose the concerned sphere.",
-      "placeholder": "E.g.: When my colleague speaks to me in that tone..."
+    "declencheur": {
+      "title": "What is your trigger?",
+      "description": "Choose an existing trigger, a suggestion, or write your own.",
+      "mesDeclencheurs": "My triggers",
+      "suggestions": "AI suggestions",
+      "nouveau": "New trigger",
+      "placeholder": "E.g.: Waking up exhausted after a short night...",
+      "ajouter": "Add",
+      "actif": "Active trigger"
     },
     "histoire": {
-      "title": "Write your story",
-      "description": "Describe the complete experience as if you were telling the story to a friend.",
+      "title": "Tell your story",
+      "description": "Describe the complete experience as if you were telling the story to a friend. The AI uses this story to suggest components.",
       "placeholder": "Tell what happens, what you feel, what you do..."
     },
-    "decortication": {
-      "title": "Break down your pattern",
-      "description": "For each step, describe what happens in your experience. Be as precise as possible."
-    },
-    "menaces": {
-      "title": "Identify your threats",
-      "description": "Which of these beliefs or thoughts appear in your pattern? Select the ones that resonate."
+    "tableau": {
+      "title": "Your experience pattern",
+      "description": "For each step, identify the component, its polarity (threat or opportunity), and find the opportunity to activate. Click a step to see suggestions.",
+      "etape": "Step",
+      "composante": "Component",
+      "polarite": "Polarity",
+      "opportunite": "Opportunity",
+      "outil": "Tool",
+      "composantePlaceholder": "What happens...",
+      "opportunitePlaceholder": "What you want instead...",
+      "ouvrirOutil": "Open i+ tool",
+      "menacesSuggestions": "Threats",
+      "opportunitesSuggestions": "Opportunities",
+      "menacesIdentifiees": "Identified threats"
     },
     "transformation": {
       "title": "Transform threats",
