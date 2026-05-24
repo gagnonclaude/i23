@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { validateOrigin } from "@/lib/csrf";
 
 const ipAttempts = new Map<string, { count: number; resetAt: number }>();
 const MAX_ATTEMPTS = 3;
@@ -17,6 +18,9 @@ function checkRateLimit(ip: string): boolean {
 }
 
 export async function POST(req: NextRequest) {
+  const originError = validateOrigin(req);
+  if (originError) return originError;
+
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown";
 
   if (checkRateLimit(ip)) {
