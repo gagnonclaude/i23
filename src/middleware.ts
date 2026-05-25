@@ -54,22 +54,31 @@ function checkIPRateLimit(key: string, max: number, windowMs: number): boolean {
   return entry.count > max; // limité si dépasse
 }
 
-async function getUser(request: NextRequest) {
+async function getUserWithResponse(request: NextRequest): Promise<{ user: ReturnType<typeof Object.create> | null; response: NextResponse }> {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !supabaseAnonKey) return null;
+
+  let supabaseResponse = NextResponse.next({ request });
+
+  if (!supabaseUrl || !supabaseAnonKey) return { user: null, response: supabaseResponse };
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {
         return request.cookies.getAll();
       },
-      setAll() {},
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+        supabaseResponse = NextResponse.next({ request });
+        cookiesToSet.forEach(({ name, value, options }) =>
+          supabaseResponse.cookies.set(name, value, options)
+        );
+      },
     },
   });
 
   const { data } = await supabase.auth.getUser();
-  return data.user;
+  return { user: data.user, response: supabaseResponse };
 }
 
 export default async function middleware(request: NextRequest) {
@@ -104,7 +113,7 @@ export default async function middleware(request: NextRequest) {
   const isApiProtected = apiProtectedPaths.some((p) => pathname.startsWith(p));
 
   if (isProtected || isApiProtected) {
-    const user = await getUser(request);
+    const { user, response: supabaseResponse } = await getUserWithResponse(request);
 
     if (!user) {
       if (isApiProtected) {
@@ -115,6 +124,13 @@ export default async function middleware(request: NextRequest) {
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);
     }
+
+    // Propager les cookies Supabase rafraichis sur la response intl
+    const intlResponse = intlMiddleware(request);
+    supabaseResponse.cookies.getAll().forEach(({ name, value, ...options }) => {
+      intlResponse.cookies.set(name, value, options);
+    });
+    return intlResponse;
   }
 
   return intlMiddleware(request);

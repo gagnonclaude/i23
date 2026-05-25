@@ -1,13 +1,12 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
-import { useRouter, Link } from "@/i18n/routing";
+import { Link } from "@/i18n/routing";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 export function LoginForm() {
   const t = useTranslations("auth");
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -31,8 +30,7 @@ export function LoginForm() {
       return;
     }
 
-    router.push("/dashboard");
-    router.refresh();
+    window.location.href = "/fr/dashboard";
   };
 
   const handleResetPassword = async () => {

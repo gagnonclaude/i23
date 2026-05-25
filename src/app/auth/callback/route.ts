@@ -13,6 +13,7 @@ function isSafeRedirect(next: string): boolean {
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || origin;
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/fr/dashboard";
 
@@ -32,14 +33,14 @@ export async function GET(request: Request) {
         // Nouveau membre = redirect vers consentement
         if (!consentement) {
           const locale = next.startsWith("/en") ? "en" : "fr";
-          return NextResponse.redirect(`${origin}/${locale}/auth/consentement`);
+          return NextResponse.redirect(`${siteUrl}/${locale}/auth/consentement`);
         }
       }
 
       const safeNext = isSafeRedirect(next) ? next : "/fr/dashboard";
-      return NextResponse.redirect(`${origin}${safeNext}`);
+      return NextResponse.redirect(`${siteUrl}${safeNext}`);
     }
   }
 
-  return NextResponse.redirect(`${origin}/fr/auth/login`);
+  return NextResponse.redirect(`${siteUrl}/fr/auth/login`);
 }
