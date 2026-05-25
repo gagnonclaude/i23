@@ -2,13 +2,13 @@
 
 import { useSearchParams } from "next/navigation";
 
-export function LoginForm() {
+export function LoginForm({ action }: { action: (formData: FormData) => Promise<void> }) {
   const searchParams = useSearchParams();
   const errorParam = searchParams.get("error");
-  const error = errorParam === "invalid" ? "Courriel ou mot de passe incorrect." : errorParam ? decodeURIComponent(errorParam) : null;
+  const error = errorParam === "invalid" ? "Courriel ou mot de passe incorrect." : null;
 
   return (
-    <form method="POST" action="/api/auth/login" className="space-y-5">
+    <form action={action} className="space-y-5">
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-i23-gris-fonce mb-1">
           Courriel

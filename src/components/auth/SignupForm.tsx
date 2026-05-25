@@ -2,12 +2,13 @@
 
 import { useSearchParams } from "next/navigation";
 
-export function SignupForm() {
+export function SignupForm({ action }: { action: (formData: FormData) => Promise<void> }) {
   const searchParams = useSearchParams();
-  const error = searchParams.get("error");
+  const errorParam = searchParams.get("error");
+  const error = errorParam ? decodeURIComponent(errorParam) : null;
 
   return (
-    <form method="POST" action="/api/auth/signup" className="space-y-5">
+    <form action={action} className="space-y-5">
       <div>
         <label htmlFor="prenom" className="block text-sm font-medium text-i23-gris-fonce mb-1">
           Prénom
@@ -49,7 +50,7 @@ export function SignupForm() {
           minLength={6}
         />
       </div>
-      {error && <p className="text-sm text-red-600">{decodeURIComponent(error)}</p>}
+      {error && <p className="text-sm text-red-600">{error}</p>}
       <button
         type="submit"
         className="w-full bg-i23-turquoise text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-i23-turquoise-hover transition-colors"
