@@ -41,8 +41,8 @@ function SignupFormInner({ priceId }: { priceId: string | null }) {
       return;
     }
 
-    router.push("/dashboard");
-    router.refresh();
+    setSuccess(true);
+    setLoading(false);
   };
 
   if (success) {
