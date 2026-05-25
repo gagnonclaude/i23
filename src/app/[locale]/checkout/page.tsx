@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import Stripe from "stripe";
-import { ALLOWED_PRICES, SITE_URL } from "@/lib/config-public";
+import { ALLOWED_PRICES } from "@/lib/config-public";
 
 export default async function CheckoutPage({
   params,
@@ -23,12 +23,16 @@ export default async function CheckoutPage({
   }
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
+  const baseUrl = process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : (process.env.NEXT_PUBLIC_SITE_URL || "https://i23.ca");
+
   const session = await stripe.checkout.sessions.create({
     customer_email: email || undefined,
     line_items: [{ price: priceId, quantity: 1 }],
     mode: "subscription",
-    success_url: `${SITE_URL}/${locale}/auth/completer?checkout=success&session_id={CHECKOUT_SESSION_ID}&email={CHECKOUT_SESSION_CUSTOMER_EMAIL}`,
-    cancel_url: `${SITE_URL}/${locale}/#forfaits?checkout=cancelled`,
+    success_url: `${baseUrl}/${locale}/auth/completer?checkout=success&session_id={CHECKOUT_SESSION_ID}&email={CHECKOUT_SESSION_CUSTOMER_EMAIL}`,
+    cancel_url: `${baseUrl}/${locale}/#forfaits?checkout=cancelled`,
   });
 
   if (session.url) {
