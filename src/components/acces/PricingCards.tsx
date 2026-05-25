@@ -34,14 +34,11 @@ export function PricingCards() {
   const t = useTranslations("funnel.prix");
   const [loading, setLoading] = useState<string | null>(null);
   const [modalPriceId, setModalPriceId] = useState<string | null>(null);
-  const [mounted] = useState(() => typeof window !== "undefined");
 
   const handleCheckout = (priceId: string, key: string) => {
     setLoading(key);
     setModalPriceId(priceId);
   };
-
-  if (!mounted) return null;
 
   return (
     <>
