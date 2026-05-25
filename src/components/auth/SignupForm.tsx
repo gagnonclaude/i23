@@ -3,14 +3,12 @@
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, Link } from "@/i18n/routing";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useTranslations } from "next-intl";
 
-export function SignupForm() {
+function SignupFormInner({ priceId }: { priceId: string | null }) {
   const t = useTranslations("auth");
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const priceId = searchParams.get("priceId");
   const [prenom, setPrenom] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -120,5 +118,19 @@ export function SignupForm() {
         </Link>
       </p>
     </form>
+  );
+}
+
+function SignupFormWithSearchParams() {
+  const searchParams = useSearchParams();
+  const priceId = searchParams.get("priceId");
+  return <SignupFormInner priceId={priceId} />;
+}
+
+export function SignupForm() {
+  return (
+    <Suspense fallback={<SignupFormInner priceId={null} />}>
+      <SignupFormWithSearchParams />
+    </Suspense>
   );
 }
