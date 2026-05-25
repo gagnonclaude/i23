@@ -3,7 +3,6 @@
 import { Link } from "@/i18n/routing";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { loginAction } from "@/app/[locale]/auth/login/actions";
 
 export function LoginForm() {
   const t = useTranslations("auth");
@@ -18,16 +17,26 @@ export function LoginForm() {
     setError(null);
 
     const formData = new FormData(e.currentTarget);
-    const result = await loginAction(formData);
 
-    if (result?.error) {
-      setError(result.error);
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: formData.get("email"),
+        password: formData.get("password"),
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || result.error) {
+      setError(result.error || "Erreur de connexion.");
       setLoading(false);
       return;
     }
 
-    // La Server Action a écrit les cookies côté serveur
-    // On recharge la page complètement pour que le navigateur les récupère
+    // La Route API a écrit les cookies via Set-Cookie headers
+    // window.location.replace force un rechargement complet avec les cookies frais
     window.location.replace("/fr/initialisation");
   };
 
