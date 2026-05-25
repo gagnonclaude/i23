@@ -1,84 +1,61 @@
 "use client";
 
-import { Link } from "@/i18n/routing";
 import { useState } from "react";
-import { useTranslations } from "next-intl";
 
 export function LoginForm() {
-  const t = useTranslations("auth");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [resetSent, setResetSent] = useState(false);
-  const [email, setEmail] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    // Capturer les valeurs AVANT tout await (currentTarget devient null après)
     const form = e.currentTarget;
-    const emailVal = (form.elements.namedItem("email") as HTMLInputElement).value;
-    const passwordVal = (form.elements.namedItem("password") as HTMLInputElement).value;
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+    const password = (form.elements.namedItem("password") as HTMLInputElement).value;
 
-    const response = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: emailVal,
-        password: passwordVal,
-      }),
-    });
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
+      });
 
-    const result = await response.json();
+      const result = await response.json();
 
-    if (!response.ok || result.error) {
-      setError(result.error || "Erreur de connexion.");
+      if (!response.ok || result.error) {
+        setError(result.error || "Erreur de connexion.");
+        setLoading(false);
+        return;
+      }
+
+      window.location.replace("/fr/initialisation");
+    } catch (err) {
+      setError("Erreur réseau. Réessaie.");
       setLoading(false);
-      return;
-    }
-
-    // La Route API a écrit les cookies via Set-Cookie headers
-    // window.location.replace force un rechargement complet avec les cookies frais
-    window.location.replace("/fr/initialisation");
-  };
-
-  const handleResetPassword = async () => {
-    if (!email) {
-      setError("Entre ton courriel d'abord pour réinitialiser ton mot de passe.");
-      return;
-    }
-    const { createClient } = await import("@/lib/supabase/client");
-    const supabase = createClient();
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
-    if (error) {
-      setError(error.message);
-    } else {
-      setError(null);
-      setResetSent(true);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleLogin} className="space-y-5">
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-i23-gris-fonce mb-1">
-          {t("email")}
+          Courriel
         </label>
         <input
           id="email"
           name="email"
           type="email"
           required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
           className="w-full px-4 py-2.5 border border-i23-gris-pale rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-i23-turquoise"
           placeholder="courriel@exemple.com"
         />
       </div>
       <div>
         <label htmlFor="password" className="block text-sm font-medium text-i23-gris-fonce mb-1">
-          {t("password")}
+          Mot de passe
         </label>
         <input
           id="password"
@@ -96,20 +73,13 @@ export function LoginForm() {
         disabled={loading}
         className="w-full bg-i23-turquoise text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-i23-turquoise-hover transition-colors disabled:opacity-50"
       >
-        {loading ? t("loading") : t("login")}
+        {loading ? "Chargement..." : "Se connecter"}
       </button>
-      <p className="text-center text-sm text-i23-gris-fonce/70">
-        {resetSent ? t("resetSent") : (
-          <a href="#" onClick={(e) => { e.preventDefault(); handleResetPassword(); }} className="text-i23-turquoise font-semibold hover:underline">
-            {t("forgotPassword")}
-          </a>
-        )}
-      </p>
-      <p className="text-center text-sm text-i23-gris-fonce/70">
-        {t("noAccount")}{" "}
-        <Link href="/auth/signup" className="text-i23-turquoise font-semibold hover:underline">
-          {t("signupLink")}
-        </Link>
+      <p className="text-center text-sm text-i23-gris-fonce/70 mt-2">
+        Pas de compte?{" "}
+        <a href="/fr/auth/signup" className="text-i23-turquoise font-semibold hover:underline">
+          Créer un compte
+        </a>
       </p>
     </form>
   );
