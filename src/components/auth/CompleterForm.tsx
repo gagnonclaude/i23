@@ -56,7 +56,7 @@ export function CompleterForm({ sessionId, fallbackEmail }: { sessionId: string 
       } catch {}
     }
 
-    router.push("/dashboard");
+    router.push("/auth/consentement");
     router.refresh();
   };
 
@@ -84,20 +84,6 @@ export function CompleterForm({ sessionId, fallbackEmail }: { sessionId: string 
         />
       </div>
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-i23-gris-fonce mb-1">
-          {t("email")}
-        </label>
-        <input
-          id="email"
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-4 py-2.5 border border-i23-gris-pale rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-i23-turquoise"
-          placeholder="courriel@exemple.com"
-        />
-      </div>
-      <div>
         <label htmlFor="password" className="block text-sm font-medium text-i23-gris-fonce mb-1">
           {t("password")}
         </label>
@@ -112,6 +98,11 @@ export function CompleterForm({ sessionId, fallbackEmail }: { sessionId: string 
           minLength={6}
         />
       </div>
+      {email && (
+        <p className="text-xs text-i23-gris-fonce/50 text-center">
+          {t("email")} : {email}
+        </p>
+      )}
       {error && <p className="text-sm text-red-600">{error}</p>}
       <button
         type="submit"
