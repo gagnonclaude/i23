@@ -1,59 +1,30 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
 import { Link } from "@/i18n/routing";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { loginAction } from "@/app/[locale]/auth/login/actions";
 
 export function LoginForm() {
   const t = useTranslations("auth");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [resetSent, setResetSent] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [email, setEmail] = useState("");
 
-  useEffect(() => {
-    if (!loggedIn) return;
-    // Attendre que Supabase confirme la session via onAuthStateChange
-    const supabase = createClient();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN") {
-        subscription.unsubscribe();
-        window.location.href = "/fr/dashboard";
-      }
-    });
-    // Timeout de sécurité : forcer la navigation après 2 secondes si l'event ne vient pas
-    const timeout = setTimeout(() => {
-      subscription.unsubscribe();
-      window.location.href = "/fr/dashboard";
-    }, 2000);
-    return () => {
-      subscription.unsubscribe();
-      clearTimeout(timeout);
-    };
-  }, [loggedIn]);
-
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const formData = new FormData(e.currentTarget);
+    const result = await loginAction(formData);
 
-    if (error) {
-      setError(error.message);
+    if (result?.error) {
+      setError(result.error);
       setLoading(false);
-      return;
     }
-
-    // Déclenche le useEffect qui attend onAuthStateChange
-    setLoggedIn(true);
+    // Si pas d'erreur, la Server Action redirige côté serveur
   };
 
   const handleResetPassword = async () => {
@@ -61,6 +32,7 @@ export function LoginForm() {
       setError("Entre ton courriel d'abord pour réinitialiser ton mot de passe.");
       return;
     }
+    const { createClient } = await import("@/lib/supabase/client");
     const supabase = createClient();
     const { error } = await supabase.auth.resetPasswordForEmail(email);
     if (error) {
@@ -72,13 +44,14 @@ export function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleLogin} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-5">
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-i23-gris-fonce mb-1">
           {t("email")}
         </label>
         <input
           id="email"
+          name="email"
           type="email"
           required
           value={email}
@@ -93,10 +66,9 @@ export function LoginForm() {
         </label>
         <input
           id="password"
+          name="password"
           type="password"
           required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
           className="w-full px-4 py-2.5 border border-i23-gris-pale rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-i23-turquoise"
           placeholder="••••••••"
           minLength={6}
@@ -105,10 +77,10 @@ export function LoginForm() {
       {error && <p className="text-sm text-red-600">{error}</p>}
       <button
         type="submit"
-        disabled={loading || loggedIn}
+        disabled={loading}
         className="w-full bg-i23-turquoise text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-i23-turquoise-hover transition-colors disabled:opacity-50"
       >
-        {loading || loggedIn ? t("loading") : t("login")}
+        {loading ? t("loading") : t("login")}
       </button>
       <p className="text-center text-sm text-i23-gris-fonce/70">
         {resetSent ? t("resetSent") : (
