@@ -3,8 +3,6 @@ import { setRequestLocale } from "next-intl/server";
 import Stripe from "stripe";
 import { ALLOWED_PRICES, SITE_URL } from "@/lib/config-public";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
 export default async function CheckoutPage({
   params,
   searchParams,
@@ -19,6 +17,11 @@ export default async function CheckoutPage({
   if (!priceId || !(ALLOWED_PRICES as readonly string[]).includes(priceId)) {
     redirect(`/${locale}/#forfaits`);
   }
+
+  if (!process.env.STRIPE_SECRET_KEY) {
+    redirect(`/${locale}/#forfaits`);
+  }
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
   const session = await stripe.checkout.sessions.create({
     customer_email: email || undefined,
