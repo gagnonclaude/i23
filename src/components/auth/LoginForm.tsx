@@ -1,45 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 export function LoginForm() {
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    const form = e.currentTarget;
-    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
-    const password = (form.elements.namedItem("password") as HTMLInputElement).value;
-
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, password }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok || result.error) {
-        setError(result.error || "Erreur de connexion.");
-        setLoading(false);
-        return;
-      }
-
-      window.location.replace("/fr/initialisation");
-    } catch (err) {
-      setError("Erreur réseau. Réessaie.");
-      setLoading(false);
-    }
-  };
+  const searchParams = useSearchParams();
+  const errorParam = searchParams.get("error");
+  const error = errorParam === "invalid" ? "Courriel ou mot de passe incorrect." : errorParam ? decodeURIComponent(errorParam) : null;
 
   return (
-    <form onSubmit={handleLogin} className="space-y-5">
+    <form method="POST" action="/api/auth/login" className="space-y-5">
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-i23-gris-fonce mb-1">
           Courriel
@@ -70,10 +39,9 @@ export function LoginForm() {
       {error && <p className="text-sm text-red-600">{error}</p>}
       <button
         type="submit"
-        disabled={loading}
-        className="w-full bg-i23-turquoise text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-i23-turquoise-hover transition-colors disabled:opacity-50"
+        className="w-full bg-i23-turquoise text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-i23-turquoise-hover transition-colors"
       >
-        {loading ? "Chargement..." : "Se connecter"}
+        Se connecter
       </button>
       <p className="text-center text-sm text-i23-gris-fonce/70 mt-2">
         Pas de compte?{" "}

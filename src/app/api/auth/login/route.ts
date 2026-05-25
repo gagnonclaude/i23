@@ -3,9 +3,21 @@ import { NextResponse } from "next/server";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/config-public";
 
 export async function POST(request: Request) {
-  const { email, password } = await request.json();
+  const contentType = request.headers.get("content-type") || "";
+  let email: string, password: string;
 
-  const response = NextResponse.json({ success: true });
+  if (contentType.includes("application/json")) {
+    const body = await request.json();
+    email = body.email;
+    password = body.password;
+  } else {
+    const formData = await request.formData();
+    email = formData.get("email") as string;
+    password = formData.get("password") as string;
+  }
+
+  const redirectUrl = new URL("/fr/initialisation", request.url);
+  const response = NextResponse.redirect(redirectUrl, { status: 303 });
 
   const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
@@ -23,7 +35,8 @@ export async function POST(request: Request) {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 401 });
+    const loginUrl = new URL("/fr/auth/login?error=invalid", request.url);
+    return NextResponse.redirect(loginUrl, { status: 303 });
   }
 
   return response;

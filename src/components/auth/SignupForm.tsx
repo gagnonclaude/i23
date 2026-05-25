@@ -1,46 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 export function SignupForm() {
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    const form = e.currentTarget;
-    const prenom = (form.elements.namedItem("prenom") as HTMLInputElement).value;
-    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
-    const password = (form.elements.namedItem("password") as HTMLInputElement).value;
-
-    try {
-      const response = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, password, prenom }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok || result.error) {
-        setError(result.error || "Erreur lors de la création du compte.");
-        setLoading(false);
-        return;
-      }
-
-      window.location.replace("/fr/auth/consentement");
-    } catch (err) {
-      setError("Erreur réseau. Réessaie.");
-      setLoading(false);
-    }
-  };
+  const searchParams = useSearchParams();
+  const error = searchParams.get("error");
 
   return (
-    <form onSubmit={handleSignup} className="space-y-5">
+    <form method="POST" action="/api/auth/signup" className="space-y-5">
       <div>
         <label htmlFor="prenom" className="block text-sm font-medium text-i23-gris-fonce mb-1">
           Prénom
@@ -82,13 +49,12 @@ export function SignupForm() {
           minLength={6}
         />
       </div>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-red-600">{decodeURIComponent(error)}</p>}
       <button
         type="submit"
-        disabled={loading}
-        className="w-full bg-i23-turquoise text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-i23-turquoise-hover transition-colors disabled:opacity-50"
+        className="w-full bg-i23-turquoise text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-i23-turquoise-hover transition-colors"
       >
-        {loading ? "Chargement..." : "Créer mon compte"}
+        Créer mon compte
       </button>
     </form>
   );

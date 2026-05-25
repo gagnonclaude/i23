@@ -3,9 +3,23 @@ import { NextResponse } from "next/server";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/config-public";
 
 export async function POST(request: Request) {
-  const { email, password, prenom } = await request.json();
+  const contentType = request.headers.get("content-type") || "";
+  let email: string, password: string, prenom: string;
 
-  const signupResponse = NextResponse.json({ success: true });
+  if (contentType.includes("application/json")) {
+    const body = await request.json();
+    email = body.email;
+    password = body.password;
+    prenom = body.prenom;
+  } else {
+    const formData = await request.formData();
+    email = formData.get("email") as string;
+    password = formData.get("password") as string;
+    prenom = formData.get("prenom") as string;
+  }
+
+  const redirectUrl = new URL("/fr/auth/consentement", request.url);
+  const response = NextResponse.redirect(redirectUrl, { status: 303 });
 
   const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
@@ -14,7 +28,7 @@ export async function POST(request: Request) {
       },
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value, options }) => {
-          signupResponse.cookies.set(name, value, options);
+          response.cookies.set(name, value, options);
         });
       },
     },
@@ -27,17 +41,16 @@ export async function POST(request: Request) {
   });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    const signupUrl = new URL(`/fr/auth/signup?error=${encodeURIComponent(error.message)}`, request.url);
+    return NextResponse.redirect(signupUrl, { status: 303 });
   }
 
-  // Connexion immédiate après signup
   const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
 
   if (loginError) {
-    return NextResponse.json({ error: loginError.message }, { status: 400 });
+    const signupUrl = new URL(`/fr/auth/signup?error=${encodeURIComponent(loginError.message)}`, request.url);
+    return NextResponse.redirect(signupUrl, { status: 303 });
   }
 
-  return NextResponse.json({ success: true, user: data.user?.email }, {
-    headers: signupResponse.headers,
-  });
+  return response;
 }
