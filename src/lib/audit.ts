@@ -10,7 +10,12 @@ export type AuditAction =
   | "bilan.upsert"
   | "initialisation.upsert"
   | "quiz.badge_attribue"
-  | "schema.created";
+  | "schema.created"
+  | "auth.login.succes"
+  | "auth.login.echec"
+  | "auth.signup.succes"
+  | "auth.signup.echec"
+  | "consentement.modifie";
 
 interface AuditPayload {
   action: AuditAction;

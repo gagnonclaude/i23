@@ -26,7 +26,8 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Non autorise" }, { status: 401 });
 
-  const body = await req.json();
+  const body = await req.json().catch(() => null);
+  if (!body) return NextResponse.json({ error: "Requete invalide" }, { status: 400 });
   const { mc_id, reponses } = body as { mc_id: string; reponses: Record<string, string> };
 
   if (!mc_id || !reponses) {

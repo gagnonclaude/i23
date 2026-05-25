@@ -2,11 +2,13 @@ import { createServerClient } from "@supabase/ssr";
 import { NextRequest, NextResponse } from "next/server";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/config-public";
 import { validateOrigin } from "@/lib/csrf";
+import { logAudit } from "@/lib/audit";
 
 export async function POST(request: NextRequest) {
   const originError = validateOrigin(request);
   if (originError) return originError;
 
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
   const contentType = request.headers.get("content-type") || "";
   let email: string, password: string;
 
@@ -39,9 +41,11 @@ export async function POST(request: NextRequest) {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
+    await logAudit({ action: "auth.login.echec", ip, metadata: { email } });
     const loginUrl = new URL("/fr/auth/login?error=invalid", request.url);
     return NextResponse.redirect(loginUrl, { status: 303 });
   }
 
+  await logAudit({ action: "auth.login.succes", ip, metadata: { email } });
   return response;
 }

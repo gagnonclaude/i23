@@ -2,11 +2,13 @@ import { createServerClient } from "@supabase/ssr";
 import { NextRequest, NextResponse } from "next/server";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/config-public";
 import { validateOrigin } from "@/lib/csrf";
+import { logAudit } from "@/lib/audit";
 
 export async function POST(request: NextRequest) {
   const originError = validateOrigin(request);
   if (originError) return originError;
 
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
   const contentType = request.headers.get("content-type") || "";
   let email: string, password: string, prenom: string;
 
@@ -45,6 +47,7 @@ export async function POST(request: NextRequest) {
   });
 
   if (error) {
+    await logAudit({ action: "auth.signup.echec", ip, metadata: { email } });
     const signupUrl = new URL(`/fr/auth/signup?error=${encodeURIComponent(error.message)}`, request.url);
     return NextResponse.redirect(signupUrl, { status: 303 });
   }
@@ -52,9 +55,11 @@ export async function POST(request: NextRequest) {
   const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
 
   if (loginError) {
+    await logAudit({ action: "auth.signup.echec", ip, metadata: { email, raison: "login_post_signup" } });
     const signupUrl = new URL(`/fr/auth/signup?error=${encodeURIComponent(loginError.message)}`, request.url);
     return NextResponse.redirect(signupUrl, { status: 303 });
   }
 
+  await logAudit({ action: "auth.signup.succes", user_id: data.user?.id, ip, metadata: { email } });
   return response;
 }

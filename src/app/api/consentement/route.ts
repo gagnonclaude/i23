@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { validateOrigin } from "@/lib/csrf";
+import { logAudit } from "@/lib/audit";
 
 export type ModeSauvegarde = "enregistre" | "session";
 export type PartageCoach = "aucun" | "progression" | "progression_schemas" | "tout";
@@ -67,6 +68,12 @@ export async function POST(req: NextRequest) {
   if (error) {
     return NextResponse.json({ error: "Erreur lors de la sauvegarde" }, { status: 500 });
   }
+
+  await logAudit({
+    action: "consentement.modifie",
+    user_id: user.id,
+    metadata: { mode_sauvegarde, partage_coach },
+  });
 
   return NextResponse.json({ success: true });
 }

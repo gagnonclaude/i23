@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { validateOrigin } from "@/lib/csrf";
+import { logAudit } from "@/lib/audit";
 
 export async function POST(req: NextRequest) {
   const originError = validateOrigin(req);
@@ -54,6 +55,12 @@ export async function POST(req: NextRequest) {
   if (error) {
     return NextResponse.json({ error: "Erreur lors de la sauvegarde" }, { status: 500 });
   }
+
+  await logAudit({
+    action: "schema.created",
+    user_id: user.id,
+    metadata: { thematique, niveau: safeNiveau },
+  });
 
   return NextResponse.json({ success: true });
 }
