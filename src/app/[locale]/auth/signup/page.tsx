@@ -33,15 +33,12 @@ export default async function SignupPage({ params }: { params: Promise<{ locale:
       redirect(`/${locale}/auth/signup?error=${encodeURIComponent(loginError.message)}`);
     }
 
-    redirect(`/${locale}/auth/consentement`);
+    redirect(`/${locale}/acces`);
   }
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-i23-gris-fonce">i23</h1>
-        </div>
         <div className="bg-white border border-i23-gris-pale rounded-2xl p-8">
           <SignupForm action={signup} />
         </div>

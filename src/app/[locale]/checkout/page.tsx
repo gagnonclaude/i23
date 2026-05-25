@@ -31,7 +31,7 @@ export default async function CheckoutPage({
     customer_email: email || undefined,
     line_items: [{ price: priceId, quantity: 1 }],
     mode: "subscription",
-    success_url: `${baseUrl}/${locale}/auth/completer?checkout=success&session_id={CHECKOUT_SESSION_ID}&email={CHECKOUT_SESSION_CUSTOMER_EMAIL}`,
+    success_url: `${baseUrl}/${locale}/auth/completer?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${baseUrl}/${locale}/#forfaits?checkout=cancelled`,
   });
 
