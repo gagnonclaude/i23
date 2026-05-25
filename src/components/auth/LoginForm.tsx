@@ -1,8 +1,9 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
-export function LoginForm({ action }: { action: (formData: FormData) => Promise<void> }) {
+export function LoginForm({ action, locale }: { action: (formData: FormData) => Promise<void>; locale: string }) {
   const searchParams = useSearchParams();
   const errorParam = searchParams.get("error");
   const error = errorParam === "invalid" ? "Courriel ou mot de passe incorrect." : null;
@@ -45,9 +46,9 @@ export function LoginForm({ action }: { action: (formData: FormData) => Promise<
       </button>
       <p className="text-center text-sm text-i23-gris-fonce/70 mt-2">
         Pas de compte?{" "}
-        <a href="/fr/auth/signup" className="text-i23-turquoise font-semibold hover:underline">
+        <Link href={`/${locale}/auth/signup`} className="text-i23-turquoise font-semibold hover:underline">
           Créer un compte
-        </a>
+        </Link>
       </p>
     </form>
   );

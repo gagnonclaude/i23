@@ -63,7 +63,7 @@ export function OutilSchemaInline({
       {step === "details" && (
         <div className="space-y-3">
           <p className="text-sm font-medium text-i23-gris-fonce">
-            Qu'est-ce que cette menace t'empêche de faire ou de vivre?
+            Qu&apos;est-ce que cette menace t&apos;empêche de faire ou de vivre?
           </p>
           <Textarea
             value={details}
@@ -76,7 +76,7 @@ export function OutilSchemaInline({
               onClick={() => setStep("opportunite")}
               disabled={details.length < 10}
             >
-              Trouver l'opportunité
+              Trouver l&apos;opportunité
             </Button>
           </div>
         </div>

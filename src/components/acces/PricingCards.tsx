@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "@/i18n/routing";
 import { STRIPE_PRICES } from "@/lib/config-public";
 import { EmailFirstModal } from "@/components/auth/EmailFirstModal";
@@ -34,11 +34,7 @@ export function PricingCards() {
   const t = useTranslations("funnel.prix");
   const [loading, setLoading] = useState<string | null>(null);
   const [modalPriceId, setModalPriceId] = useState<string | null>(null);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const [mounted] = useState(() => typeof window !== "undefined");
 
   const handleCheckout = (priceId: string, key: string) => {
     setLoading(key);

@@ -13,6 +13,12 @@ interface OutilFormProps {
   etapeNumero: number;
 }
 
+interface EtapeAvecMenaces {
+  menaces?: string[];
+  opportunites?: string[];
+  composantesParNiveau?: Record<string, { menaces?: string[]; opportunites?: string[] }>;
+}
+
 export function OutilForm({ etapeNumero }: OutilFormProps) {
   const t = useTranslations("outils");
   const router = useRouter();
@@ -38,11 +44,11 @@ export function OutilForm({ etapeNumero }: OutilFormProps) {
   if (!etape) return null;
 
   const getMenacesRef = (): string[] => {
-    const e = etape as any;
+    const e = etape as EtapeAvecMenaces;
     if (e?.menaces) return e.menaces;
     if (e?.composantesParNiveau) {
       const all: string[] = [];
-      Object.values(e.composantesParNiveau).forEach((n: any) => {
+      Object.values(e.composantesParNiveau).forEach((n) => {
         if (n?.menaces) all.push(...n.menaces);
       });
       return all;
@@ -51,11 +57,11 @@ export function OutilForm({ etapeNumero }: OutilFormProps) {
   };
 
   const getOpportunitesRef = (): string[] => {
-    const e = etape as any;
+    const e = etape as EtapeAvecMenaces;
     if (e?.opportunites) return e.opportunites;
     if (e?.composantesParNiveau) {
       const all: string[] = [];
-      Object.values(e.composantesParNiveau).forEach((n: any) => {
+      Object.values(e.composantesParNiveau).forEach((n) => {
         if (n?.opportunites) all.push(...n.opportunites);
       });
       return all;

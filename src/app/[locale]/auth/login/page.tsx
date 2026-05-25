@@ -24,8 +24,6 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
     redirect(`/${locale}/initialisation`);
   }
 
-  const searchParams_error = undefined;
-
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
       <div className="w-full max-w-md">
@@ -33,7 +31,7 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
           <h1 className="text-2xl font-bold text-i23-gris-fonce">i23</h1>
         </div>
         <div className="bg-white border border-i23-gris-pale rounded-2xl p-8">
-          <LoginForm action={login} />
+          <LoginForm action={login} locale={locale} />
         </div>
       </div>
     </div>

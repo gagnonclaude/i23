@@ -12,6 +12,12 @@
   "engines": {
     "node": "20.x"
   },
+  "browserslist": [
+    "> 0.5%",
+    "not dead",
+    "Safari >= 14",
+    "iOS >= 14"
+  ],
   "dependencies": {
     "@sentry/nextjs": "^10.53.1",
     "@stripe/react-stripe-js": "^6.4.0",
