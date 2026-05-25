@@ -16,14 +16,17 @@ export function LoginForm() {
     setLoading(true);
     setError(null);
 
-    const formData = new FormData(e.currentTarget);
+    // Capturer les valeurs AVANT tout await (currentTarget devient null après)
+    const form = e.currentTarget;
+    const emailVal = (form.elements.namedItem("email") as HTMLInputElement).value;
+    const passwordVal = (form.elements.namedItem("password") as HTMLInputElement).value;
 
     const response = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        email: formData.get("email"),
-        password: formData.get("password"),
+        email: emailVal,
+        password: passwordVal,
       }),
     });
 
