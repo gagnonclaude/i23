@@ -3,9 +3,11 @@ import Stripe from "stripe";
 import { createClient } from "@/lib/supabase/server";
 import { validateOrigin } from "@/lib/csrf";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
 export async function POST(req: NextRequest) {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return NextResponse.json({ error: "Configuration Stripe manquante" }, { status: 500 });
+  }
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
   const originError = validateOrigin(req);
   if (originError) return originError;
 

@@ -5,9 +5,11 @@ import { ALLOWED_PRICES } from "@/lib/config-public";
 import { validateOrigin } from "@/lib/csrf";
 import { logAudit } from "@/lib/audit";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
 export async function POST(req: NextRequest) {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return NextResponse.json({ error: "Configuration Stripe manquante" }, { status: 500 });
+  }
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
   const originError = validateOrigin(req);
   if (originError) return originError;
 
