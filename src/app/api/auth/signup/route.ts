@@ -1,8 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/config-public";
+import { validateOrigin } from "@/lib/csrf";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const originError = validateOrigin(request);
+  if (originError) return originError;
+
   const contentType = request.headers.get("content-type") || "";
   let email: string, password: string, prenom: string;
 
