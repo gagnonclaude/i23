@@ -13,7 +13,7 @@ export default async function SignupPage({ params }: { params: Promise<{ locale:
           <h1 className="text-2xl font-bold text-i23-gris-fonce">i23</h1>
         </div>
         <div className="bg-white border border-i23-gris-pale rounded-2xl p-8">
-          <Suspense>
+          <Suspense fallback={<div className="space-y-5 animate-pulse"><div className="h-4 bg-i23-gris-pale rounded w-1/4 mb-1"></div><div className="h-10 bg-i23-gris-pale rounded"></div><div className="h-4 bg-i23-gris-pale rounded w-1/4 mb-1 mt-5"></div><div className="h-10 bg-i23-gris-pale rounded"></div><div className="h-4 bg-i23-gris-pale rounded w-1/4 mb-1 mt-5"></div><div className="h-10 bg-i23-gris-pale rounded"></div><div className="h-10 bg-i23-turquoise/30 rounded mt-5"></div></div>}>
             <SignupForm />
           </Suspense>
         </div>
