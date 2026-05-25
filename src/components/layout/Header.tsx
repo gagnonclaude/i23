@@ -5,9 +5,14 @@ import { Link, useRouter, usePathname } from "@/i18n/routing";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
 
+const AUTH_PATHS = ["/auth/", "/consentement", "/initialisation", "/bilan-depart", "/completer"];
+
 export function Header() {
   const t = useTranslations("nav");
+  const pathname = usePathname();
   const [isMember, setIsMember] = useState(false);
+
+  const isAuthPage = AUTH_PATHS.some((p) => pathname.includes(p));
 
   useEffect(() => {
     const supabase = createClient();
@@ -15,6 +20,19 @@ export function Header() {
       setIsMember(!!user);
     });
   }, []);
+
+  // Pages auth/onboarding : header minimaliste centré
+  if (isAuthPage) {
+    return (
+      <header className="fixed top-0 w-full bg-white/90 backdrop-blur-md border-b border-i23-gris-pale z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center h-[72px]">
+          <Link href="/" className="flex items-center gap-2">
+            <img src="/logo.png" alt="i23" className="h-[42px] w-auto" />
+          </Link>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className="fixed top-0 w-full bg-white/90 backdrop-blur-md border-b border-i23-gris-pale z-50">
