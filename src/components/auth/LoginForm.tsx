@@ -23,8 +23,12 @@ export function LoginForm() {
     if (result?.error) {
       setError(result.error);
       setLoading(false);
+      return;
     }
-    // Si pas d'erreur, la Server Action redirige côté serveur
+
+    // La Server Action a écrit les cookies côté serveur
+    // On recharge la page complètement pour que le navigateur les récupère
+    window.location.replace("/fr/initialisation");
   };
 
   const handleResetPassword = async () => {
