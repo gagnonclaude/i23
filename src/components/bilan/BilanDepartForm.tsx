@@ -94,6 +94,7 @@ export function BilanDepartForm() {
     }
 
     clearAnswers();
+    router.refresh();
     router.push("/dashboard");
   };
 
