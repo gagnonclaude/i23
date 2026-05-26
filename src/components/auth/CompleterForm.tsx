@@ -13,6 +13,7 @@ export function CompleterForm({ sessionId, fallbackEmail }: { sessionId: string 
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(!!sessionId);
 
   useEffect(() => {
     if (!sessionId) return;
@@ -23,6 +24,9 @@ export function CompleterForm({ sessionId, fallbackEmail }: { sessionId: string 
         const data = await res.json();
         if (data.email) setEmail(data.email);
       } catch {}
+      finally {
+        setEmailLoading(false);
+      }
     };
 
     fetchSession();
@@ -32,6 +36,12 @@ export function CompleterForm({ sessionId, fallbackEmail }: { sessionId: string 
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    if (!email) {
+      setError("Ton courriel n'a pas pu être récupéré. Rafraîchis la page et réessaie.");
+      setLoading(false);
+      return;
+    }
 
     const supabase = createClient();
     const { error } = await supabase.auth.signUp({
@@ -98,7 +108,10 @@ export function CompleterForm({ sessionId, fallbackEmail }: { sessionId: string 
           minLength={6}
         />
       </div>
-      {email && (
+      {emailLoading && (
+        <p className="text-xs text-i23-gris-fonce/50 text-center">Récupération de ton courriel...</p>
+      )}
+      {!emailLoading && email && (
         <p className="text-xs text-i23-gris-fonce/50 text-center">
           {t("email")} : {email}
         </p>
@@ -106,10 +119,10 @@ export function CompleterForm({ sessionId, fallbackEmail }: { sessionId: string 
       {error && <p className="text-sm text-red-600">{error}</p>}
       <button
         type="submit"
-        disabled={loading}
+        disabled={loading || emailLoading}
         className="w-full bg-i23-turquoise text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-i23-turquoise-hover transition-colors disabled:opacity-50"
       >
-        {loading ? t("loading") : t("signup")}
+        {emailLoading ? t("loading") : loading ? t("loading") : t("signup")}
       </button>
     </form>
   );
