@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
+import { useRouter as useNextRouter } from "next/navigation";
 import { useLocalDraft } from "@/hooks/useLocalDraft";
 
 type Dimension = "energie" | "anxiete" | "temps" | "emotions" | "motivation" | "communication" | "confiance" | "relations";
@@ -34,6 +35,7 @@ const totalSteps = Math.ceil(questions.length / QUESTIONS_PER_STEP) + 1;
 export function BilanDepartForm() {
   const t = useTranslations("bilan");
   const router = useRouter();
+  const nextRouter = useNextRouter();
   const [step, setStep] = useState(0);
   const [answers, setAnswers, clearAnswers] = useLocalDraft<Record<string, string | number>>("bilan-depart", {});
   const [loading, setLoading] = useState(false);
@@ -94,7 +96,7 @@ export function BilanDepartForm() {
     }
 
     clearAnswers();
-    router.refresh();
+    nextRouter.refresh();
     router.push("/dashboard");
   };
 
