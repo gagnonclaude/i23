@@ -31,6 +31,7 @@ export default async function CheckoutPage({
     customer_email: email || undefined,
     line_items: [{ price: priceId, quantity: 1 }],
     mode: "subscription",
+    locale: locale === "en" ? "en" : "fr",
     success_url: `${baseUrl}/${locale}/auth/completer?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${baseUrl}/${locale}/#forfaits?checkout=cancelled`,
   });

@@ -45,9 +45,9 @@ export function LoginForm({ action, locale }: { action: (formData: FormData) => 
         Se connecter
       </button>
       <p className="text-center text-sm text-i23-gris-fonce/70 mt-2">
-        Pas de compte?{" "}
-        <Link href={`/${locale}/auth/signup`} className="text-i23-turquoise font-semibold hover:underline">
-          Créer un compte
+        Pas encore membre?{" "}
+        <Link href={`/${locale}/#forfaits`} className="text-i23-turquoise font-semibold hover:underline">
+          Voir les forfaits
         </Link>
       </p>
     </form>
