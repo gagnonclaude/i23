@@ -8,10 +8,12 @@ export async function POST(req: NextRequest) {
   if (originError) return originError;
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  console.log("[bilan-depart] user:", user?.id ?? "null", "authError:", authError?.message ?? "none");
 
   if (!user) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 });
+    return NextResponse.json({ error: "Non autorise", debug: authError?.message }, { status: 401 });
   }
 
   let body: unknown;
@@ -40,8 +42,10 @@ export async function POST(req: NextRequest) {
       completed_at: new Date().toISOString(),
     }, { onConflict: "user_id" });
 
+  console.log("[bilan-depart] upsert error:", error?.message ?? "none", "code:", error?.code ?? "none");
+
   if (error) {
-    return NextResponse.json({ error: "Erreur lors de la sauvegarde" }, { status: 500 });
+    return NextResponse.json({ error: "Erreur lors de la sauvegarde", debug: error.message, code: error.code }, { status: 500 });
   }
 
   await logAudit({ action: "bilan.upsert", user_id: user.id });

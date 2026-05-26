@@ -86,7 +86,8 @@ export function BilanDepartForm() {
         body: JSON.stringify({ reponses: answers, scores_dimensions: scores }),
       });
       if (!res.ok) {
-        setError("Erreur lors de la sauvegarde. Réessaie.");
+        const data = await res.json().catch(() => ({}));
+        setError(`Erreur ${res.status}: ${data.error ?? "inconnue"}${data.debug ? ` — ${data.debug}` : ""}`);
         setLoading(false);
         return;
       }
