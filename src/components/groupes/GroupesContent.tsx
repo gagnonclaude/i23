@@ -100,7 +100,7 @@ export function GroupesContent() {
             {t("dureeLabel")} : 60, 75 {t("ou")} 90 {t("minutes")}
           </p>
           <Link
-            href="/acces"
+            href="/#forfaits"
             className="inline-block bg-i23-turquoise text-white px-8 py-3 rounded-lg font-semibold hover:bg-i23-turquoise-hover transition-colors"
           >
             {t("cta")}

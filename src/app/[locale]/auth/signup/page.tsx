@@ -33,7 +33,7 @@ export default async function SignupPage({ params }: { params: Promise<{ locale:
       redirect(`/${locale}/auth/signup?error=${encodeURIComponent(loginError.message)}`);
     }
 
-    redirect(`/${locale}/acces`);
+    redirect(`/${locale}/#forfaits`);
   }
 
   return (

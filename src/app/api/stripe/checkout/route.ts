@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     line_items: [{ price: priceId, quantity: 1 }],
     mode: "subscription",
     success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard?checkout=success`,
-    cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/acces?checkout=cancelled`,
+    cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://i23.ca"}/#forfaits`,
     metadata: { userId: user.id },
   });
 

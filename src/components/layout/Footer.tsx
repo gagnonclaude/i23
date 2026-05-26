@@ -45,7 +45,6 @@ export function Footer() {
             <div>
               <h4 className="text-white font-semibold mb-4 text-sm">i23</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link href="/acces" className="hover:text-i23-turquoise transition-colors">{t("acces")}</Link></li>
                 <li><Link href="/confidentialite" className="hover:text-i23-turquoise transition-colors">{t("confidentialite")}</Link></li>
               </ul>
             </div>
