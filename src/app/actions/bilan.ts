@@ -11,7 +11,9 @@ export async function soumettreBilan(
   locale: string
 ) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  console.log("[soumettreBilan] user:", user?.id ?? "null", "authError:", authError?.message ?? "none");
 
   if (!user) {
     redirect(`/${locale}/auth/login`);
@@ -30,6 +32,8 @@ export async function soumettreBilan(
       date_modification: new Date().toISOString(),
     }, { onConflict: "user_id" }),
   ]);
+
+  console.log("[soumettreBilan] bilanError:", bilanResult.error?.message ?? "none", "parcoursError:", parcoursResult.error?.message ?? "none");
 
   if (bilanResult.error || parcoursResult.error) {
     return { error: "Erreur lors de la sauvegarde. Réessaie." };
