@@ -2,7 +2,6 @@
 
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { useRouter } from "@/i18n/routing";
 import { STRIPE_PRICES } from "@/lib/config-public";
 import { EmailFirstModal } from "@/components/auth/EmailFirstModal";
 
