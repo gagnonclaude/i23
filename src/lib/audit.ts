@@ -15,7 +15,8 @@ export type AuditAction =
   | "auth.login.echec"
   | "auth.signup.succes"
   | "auth.signup.echec"
-  | "consentement.modifie";
+  | "consentement.modifie"
+  | "auth.logout";
 
 interface AuditPayload {
   action: AuditAction;

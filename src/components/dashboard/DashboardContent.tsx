@@ -103,7 +103,7 @@ export function DashboardContent({ user, bilan, parcours, badges }: { user: User
             { key: "schema", href: "/schema", icon: "🧩" },
             { key: "outils", href: "/outils", icon: "🛠" },
             { key: "masterclass", href: "/masterclass", icon: "🎓" },
-            { key: "bilan", href: "/bilan", icon: "📋" },
+            { key: "bilan", href: "/bilan-depart", icon: "📋" },
             { key: "groupes", href: "/groupes", icon: "👥" },
             { key: "ia", href: "/ia", icon: "🤖" },
             { key: "securite", href: "/securite", icon: "🔒" },
