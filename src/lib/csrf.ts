@@ -4,6 +4,7 @@ const ALLOWED_ORIGINS = [
   process.env.NEXT_PUBLIC_SITE_URL,
   "https://i23.ca",
   "https://www.i23.ca",
+  "https://staging.i23.ca",
   ...(process.env.NODE_ENV === "development" ? ["http://localhost:3000"] : []),
   ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
   ...(process.env.VERCEL_BRANCH_URL ? [`https://${process.env.VERCEL_BRANCH_URL}`] : []),

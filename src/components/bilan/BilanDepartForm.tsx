@@ -181,6 +181,9 @@ export function BilanDepartForm() {
       )}
 
       <div className="flex justify-between mt-8">
+        {error && (
+          <p className="text-sm text-red-500 mb-4 w-full text-center">{error}</p>
+        )}
         {step > 0 ? (
           <button
             onClick={() => setStep(step - 1)}
