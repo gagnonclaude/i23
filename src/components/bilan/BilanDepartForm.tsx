@@ -81,6 +81,7 @@ export function BilanDepartForm() {
     try {
       const res = await fetch("/api/bilan-depart", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reponses: answers, scores_dimensions: scores }),
       });
