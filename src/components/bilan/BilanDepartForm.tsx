@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/routing";
-import { useRouter as useNextRouter } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
 import { useLocalDraft } from "@/hooks/useLocalDraft";
+import { soumettreBilan } from "@/app/actions/bilan";
 
 type Dimension = "energie" | "anxiete" | "temps" | "emotions" | "motivation" | "communication" | "confiance" | "relations";
 
@@ -34,8 +33,7 @@ const totalSteps = Math.ceil(questions.length / QUESTIONS_PER_STEP) + 1;
 
 export function BilanDepartForm() {
   const t = useTranslations("bilan");
-  const router = useRouter();
-  const nextRouter = useNextRouter();
+  const locale = useLocale();
   const [step, setStep] = useState(0);
   const [answers, setAnswers, clearAnswers] = useLocalDraft<Record<string, string | number>>("bilan-depart", {});
   const [loading, setLoading] = useState(false);
@@ -59,6 +57,7 @@ export function BilanDepartForm() {
 
   const handleSubmit = async () => {
     setLoading(true);
+    setError(null);
 
     const dimensions: Record<string, number[]> = {
       energie: [], anxiete: [], temps: [], emotions: [],
@@ -78,28 +77,14 @@ export function BilanDepartForm() {
       scores[dim] = vals.length > 0 ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length * 10) / 10 : 0;
     });
 
-    try {
-      const res = await fetch("/api/bilan-depart", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reponses: answers, scores_dimensions: scores }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setError(`Erreur ${res.status}: ${data.error ?? "inconnue"}${data.debug ? ` — ${data.debug}` : ""}`);
-        setLoading(false);
-        return;
-      }
-    } catch {
-      setError("Erreur de connexion. Réessaie.");
-      setLoading(false);
-      return;
-    }
-
     clearAnswers();
-    nextRouter.refresh();
-    router.push("/dashboard");
+    const result = await soumettreBilan(answers, scores, locale);
+
+    // Si on arrive ici, c'est qu'il y a eu une erreur (redirect interrompt sinon)
+    if (result?.error) {
+      setError(result.error);
+    }
+    setLoading(false);
   };
 
   return (
@@ -182,10 +167,11 @@ export function BilanDepartForm() {
         </div>
       )}
 
+      {error && (
+        <p className="text-sm text-red-500 mt-4 text-center">{error}</p>
+      )}
+
       <div className="flex justify-between mt-8">
-        {error && (
-          <p className="text-sm text-red-500 mb-4 w-full text-center">{error}</p>
-        )}
         {step > 0 ? (
           <button
             onClick={() => setStep(step - 1)}
