@@ -8,12 +8,10 @@ export async function POST(req: NextRequest) {
   if (originError) return originError;
 
   const supabase = await createClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-  console.log("[bilan-depart] user:", user?.id ?? "null", "authError:", authError?.message ?? "none");
+  const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Non autorise", debug: authError?.message }, { status: 401 });
+    return NextResponse.json({ error: "Non autorise" }, { status: 401 });
   }
 
   let body: unknown;
@@ -33,19 +31,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Scores requis" }, { status: 400 });
   }
 
-  const { error } = await supabase
-    .from("bilans_depart")
-    .upsert({
+  const [bilanResult, parcoursResult] = await Promise.all([
+    supabase.from("bilans_depart").upsert({
       user_id: user.id,
       reponses,
       scores_dimensions,
       completed_at: new Date().toISOString(),
-    }, { onConflict: "user_id" });
+    }, { onConflict: "user_id" }),
+    supabase.from("parcours_progression").upsert({
+      user_id: user.id,
+      etape_actuelle: "mc-methode",
+      date_modification: new Date().toISOString(),
+    }, { onConflict: "user_id" }),
+  ]);
 
-  console.log("[bilan-depart] upsert error:", error?.message ?? "none", "code:", error?.code ?? "none");
-
-  if (error) {
-    return NextResponse.json({ error: "Erreur lors de la sauvegarde", debug: error.message, code: error.code }, { status: 500 });
+  if (bilanResult.error || parcoursResult.error) {
+    return NextResponse.json({ error: "Erreur lors de la sauvegarde" }, { status: 500 });
   }
 
   await logAudit({ action: "bilan.upsert", user_id: user.id });

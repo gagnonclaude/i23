@@ -21,7 +21,20 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
       redirect(`/${locale}/auth/login?error=invalid`);
     }
 
-    redirect(`/${locale}/initialisation`);
+    // Redirect intelligent : ramène l'utilisateur là où il en est
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) redirect(`/${locale}/auth/login?error=invalid`);
+
+    const [consentementResult, parcoursResult, bilanResult] = await Promise.all([
+      supabase.from("membre_consentement").select("id").eq("user_id", user!.id).maybeSingle(),
+      supabase.from("parcours_progression").select("etape_actuelle").eq("user_id", user!.id).maybeSingle(),
+      supabase.from("bilans_depart").select("completed_at").eq("user_id", user!.id).maybeSingle(),
+    ]);
+
+    if (!consentementResult.data) redirect(`/${locale}/auth/consentement`);
+    if (!parcoursResult.data) redirect(`/${locale}/initialisation`);
+    if (!bilanResult.data?.completed_at) redirect(`/${locale}/bilan-depart`);
+    redirect(`/${locale}/dashboard`);
   }
 
   return (
